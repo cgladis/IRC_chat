@@ -1,8 +1,5 @@
 NAME = ircserv
 
-CC = clang++
-FLAGS = -I $(HEADER_FOLDER) -Wall -Wextra -Werror -std=c++98 -g
-
 #COLORS
 RED = \033[0;31m
 GREEN = \033[0;32m
@@ -16,11 +13,14 @@ OBJ_FOLDER = ./obj/
 HPP_FOLDER = ./includes/
 
 #FILES
-SRC_NAME = ircserv.cpp
+SRC_NAME = ircserv.cpp Server.cpp
 
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 OBJ = $(addprefix $(OBJ_FOLDER), $(OBJ_NAME))
 SRC = $(addprefix $(SRC_FOLDER), $(SRC_NAME))
+
+CC = clang++
+FLAGS = -I $(HPP_FOLDER) -Wall -Wextra -Werror -std=c++98 -g
 
 $(OBJ_FOLDER)%.o: $(SRC_FOLDER)%.cpp
 
