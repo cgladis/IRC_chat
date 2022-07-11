@@ -11,8 +11,6 @@ std::string Connection::runCommand() {
 	std::string answer;
 
 	(void )authorized;
-//	if (!authorized)
-//		return "464 ERR_PASSWDMISMATCH\n";
 	if (comlist.find(get_command()) != comlist.end()){
 		answer = CALL_MEMBER_FN(*this, comlist.find(get_command())->second)();
 	} else{
@@ -39,10 +37,26 @@ std::string Connection::func_exit() {
 }
 
 std::string Connection::func_pass() {
-	if (server->getPassword() == command_buff.substr(command_buff.find(' ') + 1, command_buff.length())) {
+	if (server->getPassword() == command_buff.substr(command_buff.find(' ') + 1)) {
 		authorized = true;
 		return "";
 	} else
-		return "464 ERR_PASSWDMISMATCH: Password incorrect\n";
+		return "464 ERR_PASSWDMISMATCH : Password incorrect\n";
+}
+
+std::string Connection::func_nick() {
+	if (!authorized)
+		return "464 ERR_PASSWDMISMATCH : Password incorrect\n";
+	if (command_buff.substr(command_buff.find(' ') + 1).empty())
+		return "431 ERR_NONICKNAMEGIVEN : No nickname given\n";
+	if (command_buff.substr(command_buff.find(' ') + 1) == nickname)
+		return "436 ERR_NICKCOLLISION <" + nickname + "> :Nickname collision KILL\n";
+	if (database->add_nickname(command_buff.substr(command_buff.find(' ') + 1))) {
+		if (!nickname.empty())
+			database->delete_nickname(nickname);
+		nickname = command_buff.substr(command_buff.find(' ') + 1);
+		return "";
+	} else
+		return "433 ERR_NICKNAMEINUSE <" + nickname + "> :Nickname is already in use\n";
 }
 

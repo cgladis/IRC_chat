@@ -14,6 +14,7 @@
 #include "errors.hpp"
 #include "Connection.hpp"
 #include "colors.hpp"
+#include "Database.hpp"
 
 #define COMMAND_BUFFER_SIZE 100
 
@@ -41,6 +42,8 @@ private:
 	bool exit;
 	std::string password;
 	std::map<int, Connection*> connection;
+
+	Database database;
 
 
 };

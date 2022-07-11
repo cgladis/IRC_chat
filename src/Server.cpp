@@ -57,7 +57,7 @@ void Server::run() {
 				if (clientSock > max_socket)
 					max_socket = clientSock;
 				FD_SET(clientSock, &actual);
-				connection.insert(std::pair<int, Connection*>(clientSock, new Connection(this)));
+				connection.insert(std::pair<int, Connection*>(clientSock, new Connection(this, &database)));
 				std::cout << C_GREEN << "CLIENT " << clientSock << " connected"<< C_WHITE << std::endl;
 				send_message_to_socket(clientSock, "Welcome to IRC\n");
 			}

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include "Server.hpp"
+#include "Database.hpp"
 
 class Server;
 
@@ -15,9 +16,10 @@ class Connection {
 
 public:
 
-	Connection(Server *server): authorized(false), server(server) {
+	Connection(Server *server, Database *database): authorized(false), server(server), database(database) {
 		comlist["EXIT"] = &Connection::func_exit;
 		comlist["PASS"] = &Connection::func_pass;
+		comlist["NICK"] = &Connection::func_nick;
 	}
 
 	std::string runCommand();
@@ -27,6 +29,7 @@ public:
 
 	std::string func_exit();
 	std::string func_pass();
+	std::string func_nick();
 
 private:
 	bool authorized;
@@ -35,6 +38,9 @@ private:
 	std::map<std::string, std::string (Connection::*)()> comlist;
 
 	Server *server;
+	Database *database;
+
+	std::string nickname;
 
 };
 
