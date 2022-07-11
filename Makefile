@@ -13,14 +13,14 @@ OBJ_FOLDER = ./obj/
 HPP_FOLDER = ./includes/
 
 #FILES
-SRC_NAME = ircserv.cpp Server.cpp
+SRC_NAME = ircserv.cpp Server.cpp Database.cpp Connection.cpp
 
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 OBJ = $(addprefix $(OBJ_FOLDER), $(OBJ_NAME))
 SRC = $(addprefix $(SRC_FOLDER), $(SRC_NAME))
 
 CC = clang++
-FLAGS = -I $(HPP_FOLDER) -Wall -Wextra -Werror -std=c++98 -g
+FLAGS = -I $(HPP_FOLDER) -Wall -Wextra -Werror -std=c++98
 
 $(OBJ_FOLDER)%.o: $(SRC_FOLDER)%.cpp
 

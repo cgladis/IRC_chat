@@ -10,7 +10,11 @@
 #include <sys/socket.h>
 #include <stdexcept>
 #include <unistd.h>
+#include <map>
+#include "errors.hpp"
+#include "Connection.hpp"
 
+#define COMMAND_BUFFER_SIZE 100
 
 class Server {
 
@@ -20,6 +24,7 @@ public:
 	int getPort() const;
 	void init();
 	void run();
+	void send_message_to_socket(int fd, const std::string &message) const;
 
 private:
 	Server(const Server &){}
@@ -29,6 +34,8 @@ private:
 	int fd_socket;
 	int port;
 	bool exit;
+	std::map<int, Connection*> connection;
+
 
 };
 

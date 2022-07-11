@@ -4,6 +4,7 @@
 
 #include "Server.hpp"
 
+
 Server::Server(int port): port(port), exit(false) {
 }
 
@@ -42,8 +43,6 @@ void Server::run() {
 	FD_ZERO(&actual);
 	FD_SET(fd_socket, &actual);
 
-	char bufRead[42 * 4096];
-
 	while (!exit){
 		readyRead = readyWrite = actual;
 		if (select(max_socket + 1, &readyRead, &readyWrite, NULL, NULL) < 0) {
@@ -58,24 +57,44 @@ void Server::run() {
 				if (clientSock > max_socket)
 					max_socket = clientSock;
 				FD_SET(clientSock, &actual);
+				connection.insert(std::pair<int, Connection*>(clientSock, new Connection));
+				send_message_to_socket(clientSock, "Welcome to IRC\n");
 			}
 
 			if (FD_ISSET(current_fd, &readyRead) && current_fd != fd_socket) {
-				ssize_t res = recv(current_fd, bufRead, 42 * 4096, 0);
-				bufRead[res] = '\0';
+				char tempstr[COMMAND_BUFFER_SIZE];
+				ssize_t res = recv(current_fd, tempstr, COMMAND_BUFFER_SIZE, 0);
 				if (res > 0) {
-					if (std::string(bufRead) == "exit\n"){
-						exit = true;
-					} else
-						std::cout << bufRead;
+					for (int i = 0; i < res; ++i) {
+						if (tempstr[i] == '\n') {
+							std::string answer = connection[current_fd]->runCommand();
+							if (answer == "EXIT") {
+								exit = true;
+								break;
+							} else if (!answer.empty())
+								send_message_to_socket(current_fd, answer);
+						}
+						else
+							connection[current_fd]->addLetterToBuff(tempstr[i]);
+					}
+
+					std::cout << connection[current_fd]->get_command_buff() << std::endl;
 				} else{
 					FD_CLR(current_fd, &actual);
 					close(current_fd);
+					delete connection[current_fd];
+					connection.erase(current_fd);
+					std::cout << "disconnect\n";
 				}
 
 			}
 		}
 	}
+}
+
+void Server::send_message_to_socket(int fd, const std::string &message) const {
+	send(fd, message.c_str(), message.length(), 0);
+
 }
 
 std::ostream &operator<<(std::ostream &out, const Server &srv){
