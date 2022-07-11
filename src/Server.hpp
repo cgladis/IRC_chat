@@ -13,18 +13,23 @@
 #include <map>
 #include "errors.hpp"
 #include "Connection.hpp"
+#include "colors.hpp"
 
 #define COMMAND_BUFFER_SIZE 100
+
+class Connection;
 
 class Server {
 
 public:
-    Server(int port);
+    Server(int port, std::string password);
     ~Server();
 	int getPort() const;
+
 	void init();
 	void run();
 	void send_message_to_socket(int fd, const std::string &message) const;
+	std::string getPassword() const;
 
 private:
 	Server(const Server &){}
@@ -34,6 +39,7 @@ private:
 	int fd_socket;
 	int port;
 	bool exit;
+	std::string password;
 	std::map<int, Connection*> connection;
 
 

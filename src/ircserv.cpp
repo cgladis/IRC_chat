@@ -6,12 +6,15 @@
 #include <string>
 
 int main(int argc, char **argv){
+
+
+
 	if (argc < 3){
 		std::cout << "Format: ./ircserv <port> <password>\n";
 		return 1;
 	}
 
-	Server server(atoi(argv[1]));
+	Server server(atoi(argv[1]), argv[2]);
 	try {
 		server.init();
 		std::cout << server << std::endl;

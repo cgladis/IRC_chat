@@ -20,7 +20,7 @@ OBJ = $(addprefix $(OBJ_FOLDER), $(OBJ_NAME))
 SRC = $(addprefix $(SRC_FOLDER), $(SRC_NAME))
 
 CC = clang++
-FLAGS = -I $(HPP_FOLDER) -Wall -Wextra -Werror -std=c++98
+FLAGS = -I $(HPP_FOLDER) -Wall -Wextra -Werror -std=c++98 -g
 
 $(OBJ_FOLDER)%.o: $(SRC_FOLDER)%.cpp
 

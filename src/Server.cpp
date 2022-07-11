@@ -5,7 +5,7 @@
 #include "Server.hpp"
 
 
-Server::Server(int port): port(port), exit(false) {
+Server::Server(int port, std::string password): port(port), exit(false), password(password) {
 }
 
 Server::~Server(){
@@ -57,7 +57,8 @@ void Server::run() {
 				if (clientSock > max_socket)
 					max_socket = clientSock;
 				FD_SET(clientSock, &actual);
-				connection.insert(std::pair<int, Connection*>(clientSock, new Connection));
+				connection.insert(std::pair<int, Connection*>(clientSock, new Connection(this)));
+				std::cout << C_GREEN << "CLIENT " << clientSock << " connected"<< C_WHITE << std::endl;
 				send_message_to_socket(clientSock, "Welcome to IRC\n");
 			}
 
@@ -67,24 +68,29 @@ void Server::run() {
 				if (res > 0) {
 					for (int i = 0; i < res; ++i) {
 						if (tempstr[i] == '\n') {
+							std::cout << C_BLUE << "CLIENT " << current_fd << " << "
+								<< connection[current_fd]->get_command_buff() << C_WHITE << std::endl;
 							std::string answer = connection[current_fd]->runCommand();
 							if (answer == "EXIT") {
 								exit = true;
 								break;
-							} else if (!answer.empty())
+							} else if (!answer.empty()) {
+								std::cout << C_YELLOW << "CLIENT " << current_fd << " >> "
+										  << answer << C_WHITE;
 								send_message_to_socket(current_fd, answer);
+							}
 						}
+						else if (tempstr[i] == '\r')
+							continue;
 						else
 							connection[current_fd]->addLetterToBuff(tempstr[i]);
 					}
-
-					std::cout << connection[current_fd]->get_command_buff() << std::endl;
 				} else{
 					FD_CLR(current_fd, &actual);
 					close(current_fd);
 					delete connection[current_fd];
 					connection.erase(current_fd);
-					std::cout << "disconnect\n";
+					std::cout << C_RED << "CLIENT " << current_fd << " disconnected"<< C_WHITE << std::endl;
 				}
 
 			}
@@ -95,6 +101,10 @@ void Server::run() {
 void Server::send_message_to_socket(int fd, const std::string &message) const {
 	send(fd, message.c_str(), message.length(), 0);
 
+}
+
+std::string Server::getPassword() const {
+	return password;
 }
 
 std::ostream &operator<<(std::ostream &out, const Server &srv){
