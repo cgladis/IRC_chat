@@ -6,15 +6,15 @@
 
 #define CALL_MEMBER_FN(object, ptrToMember)  ((object).*(ptrToMember))
 
-std::string Connection::runCommand() {
+Message Connection::runCommand() {
 
-	std::string answer;
+	Message answer;
 
 	(void )authorized;
 	if (comlist.find(get_command()) != comlist.end()){
 		answer = CALL_MEMBER_FN(*this, comlist.find(get_command())->second)();
 	} else{
-		answer += "421 ERR_UNKNOWNCOMMAND <" + command_buff + "> :Unknown command\n";
+		answer = Message("421 ERR_UNKNOWNCOMMAND <" + command_buff + "> :Unknown command\n");
 	}
 	command_buff.clear();
 	return answer;
@@ -32,35 +32,40 @@ std::string Connection::get_command() {
 	return command_buff.substr(0,command_buff.find(' '));
 }
 
-std::string Connection::func_exit() {
-	return "EXIT";
+
+std::string Connection::get_nickname() const{
+	return nickname;
 }
 
-std::string Connection::func_pass() {
+Message Connection::func_exit() {
+	return Message("EXIT");
+}
+
+Message Connection::func_pass() {
 	if (server->getPassword() == command_buff.substr(command_buff.find(' ') + 1)) {
 		authorized = true;
-		return "";
+		return Message("");
 	} else
-		return "464 ERR_PASSWDMISMATCH : Password incorrect\n";
+		return Message("464 ERR_PASSWDMISMATCH : Password incorrect\n");
 }
 
-std::string Connection::func_nick() {
+Message Connection::func_nick() {
 	if (!authorized)
-		return "464 ERR_PASSWDMISMATCH : Password incorrect\n";
+		return Message("464 ERR_PASSWDMISMATCH : Password incorrect\n");
 	if (command_buff.substr(command_buff.find(' ') + 1).empty())
-		return "431 ERR_NONICKNAMEGIVEN : No nickname given\n";
+		return Message("431 ERR_NONICKNAMEGIVEN : No nickname given\n");
 	if (command_buff.substr(command_buff.find(' ') + 1) == nickname)
-		return "436 ERR_NICKCOLLISION <" + nickname + "> :Nickname collision KILL\n";
+		return Message("436 ERR_NICKCOLLISION <" + nickname + "> :Nickname collision KILL\n");
 	if (database->add_nickname(command_buff.substr(command_buff.find(' ') + 1))) {
 		if (!nickname.empty())
 			database->delete_nickname(nickname);
 		nickname = command_buff.substr(command_buff.find(' ') + 1);
-		return "";
+		return Message("");
 	} else
-		return "433 ERR_NICKNAMEINUSE <" + nickname + "> :Nickname is already in use\n";
+		return Message("433 ERR_NICKNAMEINUSE <" + nickname + "> :Nickname is already in use\n");
 }
 
-std::string Connection::func_user() {
+Message Connection::func_user() {
 	return std::string();
 }
 

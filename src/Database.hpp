@@ -9,6 +9,7 @@
 #include <map>
 #include <iostream>
 #include "User.hpp"
+#include "Сhannel.hpp"
 
 class Database {
 public:
@@ -17,8 +18,8 @@ public:
 	void delete_nickname(const std::string &nickname);
 private:
 	std::set<std::string> nicknames;
-	std::map<std::string, User> users;
-
+	std::map<std::string, User*> users;
+	std::map<std::string, Сhannel*> chanals;
 };
 
 

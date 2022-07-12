@@ -70,14 +70,17 @@ void Server::run() {
 						if (tempstr[i] == '\n') {
 							std::cout << C_BLUE << "CLIENT " << current_fd << " << "
 								<< connection[current_fd]->get_command_buff() << C_WHITE << std::endl;
-							std::string answer = connection[current_fd]->runCommand();
-							if (answer == "EXIT") {
+							Message answer = connection[current_fd]->runCommand();
+							if (answer.get_message() == "EXIT") {
 								exit = true;
 								break;
-							} else if (!answer.empty()) {
+							} else if (!answer.get_message().empty()) {
 								std::cout << C_YELLOW << "CLIENT " << current_fd << " >> "
-										  << answer << C_WHITE;
-								send_message_to_socket(current_fd, answer);
+										  << answer.get_message() << C_WHITE;
+								if (answer.is_self_only())
+									send_message_to_socket(current_fd, answer.get_message());
+								else
+									send_message_to_recipients(answer);
 							}
 						}
 						else if (tempstr[i] == '\r')
@@ -100,7 +103,13 @@ void Server::run() {
 
 void Server::send_message_to_socket(int fd, const std::string &message) const {
 	send(fd, message.c_str(), message.length(), 0);
+}
 
+void Server::send_message_to_recipients(const Message &answer) const {
+	for (std::map<int, Connection*>::const_iterator it = connection.begin(); it != connection.end(); ++it){
+		if (answer.nickname_in_recipient_list(it->second->get_nickname()))
+			send_message_to_socket(it->first, answer.get_message());
+	}
 }
 
 std::string Server::getPassword() const {

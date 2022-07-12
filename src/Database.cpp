@@ -6,13 +6,15 @@
 
 Database::Database() {
 	nicknames.clear();
+	users.clear();
+	chanals.clear();
 }
 
 bool Database::add_nickname(const std::string &nickname) {
-	if (nicknames.size() == 0){
-		nicknames.insert(nickname);
-		return true;
-	}
+//	if (nicknames.empty()){
+//		nicknames.insert(nickname);
+//		return true;
+//	}
 	if (nicknames.find(nickname) == nicknames.end()) {
 		nicknames.insert(nickname);
 		return true;

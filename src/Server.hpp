@@ -15,6 +15,7 @@
 #include "Connection.hpp"
 #include "colors.hpp"
 #include "Database.hpp"
+#include "Message.hpp"
 
 #define COMMAND_BUFFER_SIZE 100
 
@@ -30,6 +31,7 @@ public:
 	void init();
 	void run();
 	void send_message_to_socket(int fd, const std::string &message) const;
+	void send_message_to_recipients(const Message &answer) const;
 	std::string getPassword() const;
 
 private:
@@ -44,7 +46,6 @@ private:
 	std::map<int, Connection*> connection;
 
 	Database database;
-
 
 };
 

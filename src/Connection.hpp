@@ -27,21 +27,22 @@ public:
 		database->delete_nickname(nickname);
 	}
 
-	std::string runCommand();
+	Message runCommand();
 	void addLetterToBuff(char letter);
 	std::string get_command_buff() const;
 	std::string get_command();
+	std::string get_nickname() const;
 
-	std::string func_exit();
-	std::string func_pass();
-	std::string func_nick();
-	std::string func_user();
+	Message func_exit();
+	Message func_pass();
+	Message func_nick();
+	Message func_user();
 
 private:
 	bool authorized;
 	std::string command_buff;
 
-	std::map<std::string, std::string (Connection::*)()> comlist;
+	std::map<std::string, Message (Connection::*)()> comlist;
 
 	Server *server;
 	Database *database;
