@@ -10,7 +10,6 @@ Message Connection::runCommand() {
 
 	Message answer;
 
-	(void )authorized;
 	if (comlist.find(get_command()) != comlist.end()){
 		answer = CALL_MEMBER_FN(*this, comlist.find(get_command())->second)();
 	} else{
@@ -62,7 +61,7 @@ Message Connection::func_nick() {
 		nickname = command_buff.substr(command_buff.find(' ') + 1);
 		return Message("");
 	} else
-		return Message("433 ERR_NICKNAMEINUSE <" + nickname + "> :Nickname is already in use\n");
+		return Message("433 ERR_NICKNAMEINUSE <" + command_buff.substr(command_buff.find(' ') + 1) + "> :Nickname is already in use\n");
 }
 
 Message Connection::func_user() {

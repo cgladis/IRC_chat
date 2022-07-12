@@ -7,14 +7,11 @@
 Database::Database() {
 	nicknames.clear();
 	users.clear();
-	chanals.clear();
+	channals.clear();
 }
 
 bool Database::add_nickname(const std::string &nickname) {
-//	if (nicknames.empty()){
-//		nicknames.insert(nickname);
-//		return true;
-//	}
+
 	if (nicknames.find(nickname) == nicknames.end()) {
 		nicknames.insert(nickname);
 		return true;
@@ -26,4 +23,8 @@ bool Database::add_nickname(const std::string &nickname) {
 void Database::delete_nickname(const std::string &nickname) {
 	if (nicknames.find(nickname) != nicknames.end())
 		nicknames.erase(nickname);
+}
+
+void Database::add_channal(const std::string &channal) {
+	(void) channal;
 }

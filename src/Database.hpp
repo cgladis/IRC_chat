@@ -16,10 +16,11 @@ public:
 	Database();
 	bool add_nickname(const std::string &nickname);
 	void delete_nickname(const std::string &nickname);
+	void add_channal(const std::string &channal);
 private:
 	std::set<std::string> nicknames;
 	std::map<std::string, User*> users;
-	std::map<std::string, Сhannel*> chanals;
+	std::map<std::string, Сhannel*> channals;
 };
 
 
