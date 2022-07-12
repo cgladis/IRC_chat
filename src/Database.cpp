@@ -10,6 +10,15 @@ Database::Database() {
 	channels.clear();
 }
 
+Database::~Database() {
+	for (std::map<std::string, Сhannel*>::const_iterator it = channels.begin(); it != channels.end(); ++it){
+		delete it->second;
+	}
+	for (std::map<std::string, User*>::const_iterator it = users.begin(); it != users.end(); ++it){
+		delete it->second;
+	}
+}
+
 bool Database::add_nickname(const std::string &nickname) {
 
 	if (nicknames.find(nickname) == nicknames.end()) {
@@ -25,6 +34,26 @@ void Database::delete_nickname(const std::string &nickname) {
 		nicknames.erase(nickname);
 }
 
-void Database::add_channel(const std::string &channal) {
-	(void) channal;
+User* Database::add_user(const std::string &user, const std::string &hostname,
+						const std::string &servername, const std::string &realname) {
+
+	if (users.find(user) == users.end()) {
+		users[user] = new User(hostname, servername, realname);
+		users[user]->set_active(true);
+		return users[user];
+	}
+	else {
+		if (users[user]->is_active())
+			return NULL;
+		else {
+			users[user]->set_active(true);
+			return users[user];
+		}
+	}
 }
+
+void Database::add_channel(const std::string &channel) {
+	channels[channel] = new Сhannel;
+}
+
+

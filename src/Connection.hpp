@@ -6,10 +6,12 @@
 #define IRC_CHAT_CONNECTION_HPP
 
 #include <iostream>
+#include <sstream>
 #include <map>
 #include "Server.hpp"
 #include "Database.hpp"
 #include "Message.hpp"
+#include "User.hpp"
 
 class Server;
 
@@ -17,7 +19,7 @@ class Connection {
 
 public:
 
-	Connection(Server *server, Database *database): authorized(false), server(server), database(database) {
+	Connection(Server *server, Database *database): authorized(false), server(server), database(database), user_ref(NULL) {
 		comlist["EXIT"] = &Connection::func_exit;
 		comlist["PASS"] = &Connection::func_pass;
 		comlist["NICK"] = &Connection::func_nick;
@@ -48,6 +50,7 @@ private:
 	Database *database;
 
 	std::string nickname;
+	User *user_ref;
 
 };
 

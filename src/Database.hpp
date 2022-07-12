@@ -14,8 +14,12 @@
 class Database {
 public:
 	Database();
+	~Database();
 	bool add_nickname(const std::string &nickname);
 	void delete_nickname(const std::string &nickname);
+
+	User* add_user(const std::string &user, const std::string &hostname,
+				  const std::string &servername, const std::string &realname);
 	void add_channel(const std::string &channel);
 private:
 	std::set<std::string> nicknames;

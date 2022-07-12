@@ -65,6 +65,43 @@ Message Connection::func_nick() {
 }
 
 Message Connection::func_user() {
-	return std::string();
+
+	if (user_ref)
+		return Message("462 ERR_ALREADYREGISTRED :You may not reregister\n");
+
+	std::string user, hostname, servername, realname;
+
+	if (command_buff.find(':') != std::string::npos)
+		realname = command_buff.substr(command_buff.find(':') + 1);
+	else
+		return Message("461 ERR_NEEDMOREPARAMS <" + command_buff + "> :Not enough parameters\n");
+	std::stringstream first_part(command_buff.substr(0, command_buff.find(':')));
+	std::string parsed;
+	if (!getline(first_part, parsed, ' '))
+		return Message("461 ERR_NEEDMOREPARAMS <" + command_buff + "> :Not enough parameters\n");
+
+	if (getline(first_part, parsed, ' '))
+		user = parsed;
+	else
+		return Message("461 ERR_NEEDMOREPARAMS <" + command_buff + "> :Not enough parameters\n");
+
+	if (getline(first_part, parsed, ' '))
+		hostname = parsed;
+	else
+		return Message("461 ERR_NEEDMOREPARAMS <" + command_buff + "> :Not enough parameters\n");
+
+	if (getline(first_part, parsed, ' '))
+		servername = parsed;
+	else
+		return Message("461 ERR_NEEDMOREPARAMS <" + command_buff + "> :Not enough parameters\n");
+
+	if (getline(first_part, parsed, ' '))
+		return Message("461 ERR_NEEDMOREPARAMS <" + command_buff + "> :Not enough parameters\n");
+
+	user_ref = database->add_user(user, hostname, servername, realname);
+	if (!user_ref)
+		return Message("462 ERR_ALREADYREGISTRED :You may not reregister\n");
+
+	return Message("");
 }
 
