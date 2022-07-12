@@ -9,6 +9,7 @@
 #include <map>
 #include "Server.hpp"
 #include "Database.hpp"
+#include "Message.hpp"
 
 class Server;
 
@@ -20,6 +21,10 @@ public:
 		comlist["EXIT"] = &Connection::func_exit;
 		comlist["PASS"] = &Connection::func_pass;
 		comlist["NICK"] = &Connection::func_nick;
+		comlist["USER"] = &Connection::func_user;
+	}
+	~Connection(){
+		database->delete_nickname(nickname);
 	}
 
 	std::string runCommand();
@@ -30,6 +35,7 @@ public:
 	std::string func_exit();
 	std::string func_pass();
 	std::string func_nick();
+	std::string func_user();
 
 private:
 	bool authorized;

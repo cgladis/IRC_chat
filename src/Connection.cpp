@@ -60,3 +60,7 @@ std::string Connection::func_nick() {
 		return "433 ERR_NICKNAMEINUSE <" + nickname + "> :Nickname is already in use\n";
 }
 
+std::string Connection::func_user() {
+	return std::string();
+}
+

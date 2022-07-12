@@ -6,7 +6,9 @@
 #define IRC_CHAT_DATABASE_HPP
 
 #include <set>
+#include <map>
 #include <iostream>
+#include "User.hpp"
 
 class Database {
 public:
@@ -15,6 +17,8 @@ public:
 	void delete_nickname(const std::string &nickname);
 private:
 	std::set<std::string> nicknames;
+	std::map<std::string, User> users;
+
 };
 
 

@@ -13,7 +13,7 @@ OBJ_FOLDER = ./obj/
 HPP_FOLDER = ./includes/
 
 #FILES
-SRC_NAME = ircserv.cpp Server.cpp Database.cpp Connection.cpp
+SRC_NAME = ircserv.cpp Server.cpp Database.cpp Connection.cpp User.cpp Сhannel.cpp Message.cpp
 
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 OBJ = $(addprefix $(OBJ_FOLDER), $(OBJ_NAME))
