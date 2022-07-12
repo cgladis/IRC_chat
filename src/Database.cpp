@@ -47,6 +47,9 @@ User* Database::add_user(const std::string &user, const std::string &hostname,
 			return NULL;
 		else {
 			users[user]->set_active(true);
+			users[user]->set_hostname(hostname);
+			users[user]->set_servername(servername);
+			users[user]->set_realname(realname);
 			return users[user];
 		}
 	}

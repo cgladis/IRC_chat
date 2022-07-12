@@ -59,7 +59,7 @@ void Server::run() {
 				FD_SET(clientSock, &actual);
 				connection.insert(std::pair<int, Connection*>(clientSock, new Connection(this, &database)));
 				std::cout << C_GREEN << "CLIENT " << clientSock << " connected"<< C_WHITE << std::endl;
-				send_message_to_socket(clientSock, "Welcome to IRC\n");
+//				send_message_to_socket(clientSock, "Welcome to IRC\n");
 			}
 
 			if (FD_ISSET(current_fd, &readyRead) && current_fd != fd_socket) {

@@ -19,3 +19,15 @@ void User::set_active(bool flag) {
 bool User::is_active() {
 	return active;
 }
+
+void User::set_hostname(const std::string &hostname) {
+	this->hostname = hostname;
+}
+
+void User::set_servername(const std::string &servername) {
+	this->servername = servername;
+}
+
+void User::set_realname(const std::string &realname) {
+	this->realname = realname;
+}

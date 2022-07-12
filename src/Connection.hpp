@@ -24,9 +24,13 @@ public:
 		comlist["PASS"] = &Connection::func_pass;
 		comlist["NICK"] = &Connection::func_nick;
 		comlist["USER"] = &Connection::func_user;
+		comlist["PONG"] = &Connection::func_pong;
+		comlist["QUIT"] = &Connection::func_quit;
 	}
 	~Connection(){
 		database->delete_nickname(nickname);
+		if (user_ref)
+			user_ref->set_active(false);
 	}
 
 	Message runCommand();
@@ -39,6 +43,8 @@ public:
 	Message func_pass();
 	Message func_nick();
 	Message func_user();
+	Message func_pong();
+	Message func_quit();
 
 private:
 	bool authorized;

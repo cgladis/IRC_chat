@@ -102,6 +102,14 @@ Message Connection::func_user() {
 	if (!user_ref)
 		return Message("462 ERR_ALREADYREGISTRED :You may not reregister\n");
 
+	return Message(":ircserv 001 " + nickname + " :Welcome to IRC Network " + nickname + "!\n");
+}
+
+Message Connection::func_pong() {
+	return Message("");
+}
+
+Message Connection::func_quit() {
 	return Message("");
 }
 
