@@ -7,7 +7,7 @@
 Database::Database() {
 	nicknames.clear();
 	users.clear();
-	channals.clear();
+	channels.clear();
 }
 
 bool Database::add_nickname(const std::string &nickname) {
