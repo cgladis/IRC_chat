@@ -25,6 +25,6 @@ void Database::delete_nickname(const std::string &nickname) {
 		nicknames.erase(nickname);
 }
 
-void Database::add_channal(const std::string &channal) {
+void Database::add_channel(const std::string &channal) {
 	(void) channal;
 }
