@@ -62,6 +62,13 @@ Channel* Database::add_channel(const std::string &channel) {
     return channels[channel];
 }
 
+Channel* Database::get_channel(const std::string &channel) {
+	if (channels.find(channel) == channels.end()) {
+		channels[channel] = nullptr;
+	}
+	return channels[channel];
+}
+
 bool Database::is_channel_exist(const std::string &channel) {
     return channels.find(channel) != channels.end();
 }

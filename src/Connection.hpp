@@ -35,6 +35,7 @@ public:
 		comlist["PRIVMSG"] = &Connection::func_msg;
 		comlist["JOIN"] = &Connection::func_join;
 		comlist["PART"] = &Connection::func_part;
+		comlist["MODE"] = &Connection::func_mode;
 	}
 
 	~Connection(){
@@ -60,6 +61,7 @@ public:
 	int func_msg();
 	int func_join();
 	int func_part();
+	int func_mode();
 
 private:
 	int socket;

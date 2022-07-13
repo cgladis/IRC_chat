@@ -36,6 +36,20 @@ std::string Connection::get_command_buff() const{
 	return command_buff;
 }
 
+void Connection::parse_command_buff() {
+
+	std::stringstream first_part(command_buff.substr(0, command_buff.find(':')));
+	std::string parsed;
+
+	while (getline(first_part, parsed, ' ')) {
+		commands.push_back(parsed);
+	}
+
+	if (command_buff.find(':') != std::string::npos) {
+		commands.push_back(command_buff.substr( command_buff.find(':') + 1));
+	}
+}
+
 std::string Connection::get_nickname() const{
 	return nickname;
 }
@@ -243,21 +257,41 @@ int Connection::func_part() {
 	if (!check_authorized())
 		return COM_NORMAL;
 
+	if (commands.size() < 2 || commands.size() > 3){
+		Message message;
+		message.set_who_code_whom_command_message("ircserv", "461", nickname,
+												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
+												  "Not enough parameters");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}
+
+	if (channels.find(commands[1]) != channels.end()){
+		Channel *channel = database->get_channel(commands[1]);
+		channel->del_member(commands[1]);
+		{
+			Message message;
+
+			std::map<std::string, bool> members = channel->get_members();
+			for (std::map<std::string, bool>::const_iterator it = members.begin(); it != members.end(); ++it) {
+				message.add_recipient(it->first);
+			}
+			message.set_who_code_whom_command_group_message(nickname, "" , "",
+															commands[0],commands[1],
+															commands.size() == 3 ? commands[2] : "");
+			server->send_message(socket, message);
+		}
+
+	} else {
+		//ошибка
+	}
+
+
 	return COM_NORMAL;
 }
 
-void Connection::parse_command_buff() {
-
-	std::stringstream first_part(command_buff.substr(0, command_buff.find(':')));
-	std::string parsed;
-
-	while (getline(first_part, parsed, ' ')) {
-		commands.push_back(parsed);
-	}
-
-	if (command_buff.find(':') != std::string::npos) {
-		commands.push_back(command_buff.substr( command_buff.find(':') + 1));
-	}
+int Connection::func_mode() {
+	return COM_NORMAL;
 }
 
 

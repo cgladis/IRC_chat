@@ -18,7 +18,7 @@ std::string Channel::type_members() const {
 			result += it->first;
 		result += ' ';
 	}
-	return std::string();
+	return result;
 }
 
 std::map<std::string, bool> Channel::get_members() const {
