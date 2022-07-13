@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <vector>
 #include "Server.hpp"
 #include "Database.hpp"
 #include "Message.hpp"
@@ -22,6 +23,8 @@ public:
 
 	Connection(int socket, Server *server, Database *database): socket(socket), authorized(false), server(server),
 													database(database), user_ref(NULL) {
+		commands.clear();
+
 		comlist["EXIT"] = &Connection::func_exit;
 		comlist["PASS"] = &Connection::func_pass;
 		comlist["NICK"] = &Connection::func_nick;
@@ -42,10 +45,10 @@ public:
 	int runCommand();
 	void addLetterToBuff(char letter);
 	std::string get_command_buff() const;
-	std::string get_command();
 	std::string get_nickname() const;
 	bool check_authorized() const;
 	void send_start_massage() const;
+	void parse_command_buff();
 
 	int func_exit();
 	int func_pass();
@@ -61,6 +64,8 @@ private:
 	int socket;
 	bool authorized;
 	std::string command_buff;
+	std::vector<std::string> commands;
+
 
 	std::map<std::string, int (Connection::*)()> comlist;
 

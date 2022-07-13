@@ -8,10 +8,12 @@
 
 int Connection::runCommand() {
 
+	parse_command_buff();
+
 	int answer;
 
-	if (comlist.find(get_command()) != comlist.end()){
-		answer = CALL_MEMBER_FN(*this, comlist.find(get_command())->second)();
+	if (comlist.find(commands[0]) != comlist.end()){
+		answer = CALL_MEMBER_FN(*this, comlist.find(commands[0])->second)();
 	} else{
 		Message message;
 		message.set_who_code_whom_command_message("ircserv", "421",
@@ -22,6 +24,7 @@ int Connection::runCommand() {
 		answer = COM_NORMAL;
 	}
 	command_buff.clear();
+	commands.clear();
 	return answer;
 }
 
@@ -32,11 +35,6 @@ void Connection::addLetterToBuff(char simbol) {
 std::string Connection::get_command_buff() const{
 	return command_buff;
 }
-
-std::string Connection::get_command() {
-	return command_buff.substr(0,command_buff.find(' '));
-}
-
 
 std::string Connection::get_nickname() const{
 	return nickname;
@@ -84,26 +82,26 @@ int Connection::func_nick() {
 
 	Message message;
 
-	if (command_buff.substr(command_buff.find(' ') + 1).empty()) {
+	if (commands.size() == 1) {
 		message.set_who_code_whom_command_message("ircserv", "431", nickname,
 												  "ERR_NONICKNAMEGIVEN", "No nickname given");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
-	if (command_buff.substr(command_buff.find(' ') + 1) == nickname) {
+	if (commands[1] == nickname) {
 		message.set_who_code_whom_command_message("ircserv", "436", nickname,
 												  "ERR_NICKCOLLISION <" + nickname +">",
 												  "Nickname collision KILL");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
-	if (database->add_nickname(command_buff.substr(command_buff.find(' ') + 1))) {
+	if (database->add_nickname(commands[1])) {
 		if (!nickname.empty()) {
 			database->delete_nickname(nickname);
-			nickname = command_buff.substr(command_buff.find(' ') + 1);
+			nickname = commands[1];
 		}
 		else {
-			nickname = command_buff.substr(command_buff.find(' ') + 1);
+			nickname = commands[1];
 			send_start_massage();
 		}
 	} else {
@@ -243,6 +241,20 @@ int Connection::func_part() {
 		return COM_NORMAL;
 
 	return COM_NORMAL;
+}
+
+void Connection::parse_command_buff() {
+
+	std::stringstream first_part(command_buff.substr(0, command_buff.find(':')));
+	std::string parsed;
+
+	while (getline(first_part, parsed, ' ')) {
+		commands.push_back(parsed);
+	}
+
+	if (command_buff.find(':') != std::string::npos) {
+		commands.push_back(command_buff.substr( command_buff.find(':') + 1));
+	}
 }
 
 
