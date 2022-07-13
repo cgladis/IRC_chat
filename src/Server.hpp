@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <map>
-#include "errors.hpp"
+#include "server_commands.h"
 #include "Connection.hpp"
 #include "colors.hpp"
 #include "Database.hpp"
@@ -30,8 +30,7 @@ public:
 
 	void init();
 	void run();
-	void send_message_to_socket(int fd, const std::string &message) const;
-	void send_message_to_recipients(const Message &answer) const;
+	void send_message(int fd, const Message &answer) const;
 	std::string getPassword() const;
 
 private:

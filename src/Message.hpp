@@ -23,8 +23,16 @@ public:
 	std::string get_message() const;
 	bool is_self_only() const;
 
+	void set_who_code_whom_command_message(std::string who, std::string code, std::string whom,
+										   std::string command, std::string message);
+
 private:
 	std::set<std::string> nicknames;
+	std::string who;
+	std::string code;
+	std::string whom;
+	std::string command;
+	std::string group;
 	std::string message;
 };
 

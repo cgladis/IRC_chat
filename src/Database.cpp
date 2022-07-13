@@ -11,7 +11,7 @@ Database::Database() {
 }
 
 Database::~Database() {
-	for (std::map<std::string, Сhannel*>::const_iterator it = channels.begin(); it != channels.end(); ++it){
+	for (std::map<std::string, Channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it){
 		delete it->second;
 	}
 	for (std::map<std::string, User*>::const_iterator it = users.begin(); it != users.end(); ++it){
@@ -56,7 +56,7 @@ User* Database::add_user(const std::string &user, const std::string &hostname,
 }
 
 void Database::add_channel(const std::string &channel) {
-	channels[channel] = new Сhannel;
+	channels[channel] = new Channel;
 }
 
 

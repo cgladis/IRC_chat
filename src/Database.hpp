@@ -24,7 +24,7 @@ public:
 private:
 	std::set<std::string> nicknames;
 	std::map<std::string, User*> users;
-	std::map<std::string, Сhannel*> channels;
+	std::map<std::string, Channel*> channels;
 };
 
 

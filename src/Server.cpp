@@ -43,7 +43,7 @@ void Server::run() {
 	FD_ZERO(&actual);
 	FD_SET(fd_socket, &actual);
 
-	while (!exit){
+	while (!exit) {
 		readyRead = readyWrite = actual;
 		if (select(max_socket + 1, &readyRead, &readyWrite, NULL, NULL) < 0) {
 			continue;
@@ -57,9 +57,9 @@ void Server::run() {
 				if (clientSock > max_socket)
 					max_socket = clientSock;
 				FD_SET(clientSock, &actual);
-				connection.insert(std::pair<int, Connection*>(clientSock, new Connection(this, &database)));
-				std::cout << C_GREEN << "CLIENT " << clientSock << " connected"<< C_WHITE << std::endl;
-//				send_message_to_socket(clientSock, "Welcome to IRC\n");
+				connection.insert(
+						std::pair<int, Connection *>(clientSock, new Connection(clientSock, this, &database)));
+				std::cout << C_GREEN << "CLIENT " << clientSock << " connected" << C_WHITE << std::endl;
 			}
 
 			if (FD_ISSET(current_fd, &readyRead) && current_fd != fd_socket) {
@@ -69,47 +69,42 @@ void Server::run() {
 					for (int i = 0; i < res; ++i) {
 						if (tempstr[i] == '\n') {
 							std::cout << C_BLUE << "CLIENT " << current_fd << " << "
-								<< connection[current_fd]->get_command_buff() << C_WHITE << std::endl;
-							Message answer = connection[current_fd]->runCommand();
-							if (answer.get_message() == "EXIT") {
+									  << connection[current_fd]->get_command_buff() << C_WHITE << std::endl;
+							int answer = connection[current_fd]->runCommand();
+							if (answer == COM_EXIT) {
 								exit = true;
 								break;
-							} else if (!answer.get_message().empty()) {
-								std::cout << C_YELLOW << "CLIENT " << current_fd << " >> "
-										  << answer.get_message() << C_WHITE;
-								if (answer.is_self_only())
-									send_message_to_socket(current_fd, answer.get_message());
-								else
-									send_message_to_recipients(answer);
 							}
-						}
-						else if (tempstr[i] == '\r')
+						} else if (tempstr[i] == '\r')
 							continue;
 						else
 							connection[current_fd]->addLetterToBuff(tempstr[i]);
 					}
-				} else{
+				} else {
 					FD_CLR(current_fd, &actual);
 					close(current_fd);
 					delete connection[current_fd];
 					connection.erase(current_fd);
-					std::cout << C_RED << "CLIENT " << current_fd << " disconnected"<< C_WHITE << std::endl;
+					std::cout << C_RED << "CLIENT " << current_fd << " disconnected" << C_WHITE << std::endl;
 				}
-
 			}
 		}
 	}
 }
 
-void Server::send_message_to_socket(int fd, const std::string &message) const {
-	send(fd, message.c_str(), message.length(), 0);
-}
 
-void Server::send_message_to_recipients(const Message &answer) const {
-	for (std::map<int, Connection*>::const_iterator it = connection.begin(); it != connection.end(); ++it){
-		if (answer.nickname_in_recipient_list(it->second->get_nickname()))
-			send_message_to_socket(it->first, answer.get_message());
+void Server::send_message(int fd, const Message &answer) const {
+	std::string message = answer.get_message();
+	if (answer.is_self_only()) {
+		send(fd, message.c_str(), message.length(), 0);
+	} else{
+		for (std::map<int, Connection*>::const_iterator it = connection.begin(); it != connection.end(); ++it){
+			if (answer.nickname_in_recipient_list(it->second->get_nickname()))
+				send(it->first, message.c_str(), message.length(), 0);
+		}
 	}
+	std::cout << C_MINT << "CLIENT " << fd << " >> "
+			  << message << C_WHITE;
 }
 
 std::string Server::getPassword() const {

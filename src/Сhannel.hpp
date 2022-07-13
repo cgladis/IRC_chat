@@ -5,8 +5,17 @@
 #ifndef IRC_CHAT_СHANNEL_HPP
 #define IRC_CHAT_СHANNEL_HPP
 
+#include <iostream>
+#include <map>
 
-class Сhannel {
+class Channel {
+
+public:
+	std::string get_members() const;
+
+private:
+
+	std::map<std::string, bool> members; // nickname + operator
 
 };
 
