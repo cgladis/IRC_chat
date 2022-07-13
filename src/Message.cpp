@@ -76,6 +76,17 @@ void Message::set_who_code_whom_command_message(std::string who, std::string cod
 
 }
 
+void Message::set_who_code_whom_command_group_message(std::string who, std::string code, std::string whom,
+                                                      std::string command, std::string group, std::string message) {
+    this->who = who;
+    this->code = code;
+    this->whom = whom;
+    this->command = command;
+    this->group = group;
+    this->message = message;
+
+}
+
 std::ostream &operator<<(std::ostream &out, const Message &message){
 	out << message.get_message();
 	return out;

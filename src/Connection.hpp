@@ -24,6 +24,7 @@ public:
 	Connection(int socket, Server *server, Database *database): socket(socket), authorized(false), server(server),
 													database(database), user_ref(NULL) {
 		commands.clear();
+        channels.clear();
 
 		comlist["EXIT"] = &Connection::func_exit;
 		comlist["PASS"] = &Connection::func_pass;
@@ -65,7 +66,7 @@ private:
 	bool authorized;
 	std::string command_buff;
 	std::vector<std::string> commands;
-
+    std::set<std::string> channels;
 
 	std::map<std::string, int (Connection::*)()> comlist;
 

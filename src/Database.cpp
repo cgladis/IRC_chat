@@ -55,8 +55,15 @@ User* Database::add_user(const std::string &user, const std::string &hostname,
 	}
 }
 
-void Database::add_channel(const std::string &channel) {
-	channels[channel] = new Channel;
+Channel* Database::add_channel(const std::string &channel) {
+    if (channels.find(channel) == channels.end()) {
+        channels[channel] = new Channel(channel);
+    }
+    return channels[channel];
+}
+
+bool Database::is_channel_exist(const std::string &channel) {
+    return channels.find(channel) != channels.end();
 }
 
 

@@ -75,6 +75,14 @@ void Server::run() {
 								exit = true;
 								break;
 							}
+                            if (answer == COM_QUIT) {
+                                FD_CLR(current_fd, &actual);
+                                close(current_fd);
+                                delete connection[current_fd];
+                                connection.erase(current_fd);
+                                std::cout << C_RED << "CLIENT " << current_fd << " disconnected" << C_WHITE << std::endl;
+                                break;
+                            }
 						} else if (tempstr[i] == '\r')
 							continue;
 						else
@@ -107,8 +115,8 @@ void Server::send_message(int fd, const Message &answer) const {
 			  << message << C_WHITE;
 }
 
-std::string Server::getPassword() const {
-	return password;
+bool Server::check_password(const std::string &pass) const {
+    return pass == password;
 }
 
 std::ostream &operator<<(std::ostream &out, const Server &srv){

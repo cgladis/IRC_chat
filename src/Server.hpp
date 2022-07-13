@@ -31,7 +31,7 @@ public:
 	void init();
 	void run();
 	void send_message(int fd, const Message &answer) const;
-	std::string getPassword() const;
+	bool check_password(const std::string &pass) const;
 
 private:
 	Server(const Server &){}
