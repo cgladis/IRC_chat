@@ -38,11 +38,14 @@ void Database::delete_nickname(const std::string &nickname) {
 	if (nicknames.find(nickname) != nicknames.end())
 		nicknames.erase(nickname);
 
-    for (std::map<std::string, Channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
-        it->second->del_member(nickname);
-        if (it->second->count_members() == 0)
-            del_channel(it->first);
-    }
+	std::map<std::string, Channel*>::const_iterator it = channels.begin();
+	while (it != channels.end()){
+		it->second->del_member(nickname);
+		if (it->second->count_members() == 0)
+			channels.erase(it++);
+		else
+			it++;
+	}
 }
 
 User* Database::add_user(const std::string &user, const std::string &hostname,
