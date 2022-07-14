@@ -245,10 +245,7 @@ int Connection::func_join() {
     {
         Message message;
 
-        std::map<std::string, bool> members = channel->get_members();
-        for (std::map<std::string, bool>::const_iterator it = members.begin(); it != members.end(); ++it) {
-            message.add_recipient(it->first);
-        }
+        server->add_recipients_from_channel(commands[1], "", message);
         message.set_who_code_whom_command_group_message(nickname, "" , "", commands[0],
                                                   commands[1], "");
         server->send_message(socket, message);
@@ -284,20 +281,17 @@ int Connection::func_part() {
 	}
 
 	if (channels.find(commands[1]) != channels.end()){
-		Channel *channel = database->get_channel(commands[1]);
-		channel->del_member(commands[1]);
 		{
 			Message message;
 
-			std::map<std::string, bool> members = channel->get_members();
-			for (std::map<std::string, bool>::const_iterator it = members.begin(); it != members.end(); ++it) {
-				message.add_recipient(it->first);
-			}
+			server->add_recipients_from_channel(commands[1], "", message);
 			message.set_who_code_whom_command_group_message(nickname, "" , "",
 															commands[0],commands[1],
 															commands.size() == 3 ? commands[2] : "");
 			server->send_message(socket, message);
 		}
+        Channel *channel = database->get_channel(commands[1]);
+        channel->del_member(commands[1]);
         if (channel->count_members() == 0)
             database->del_channel(commands[1]);
 
