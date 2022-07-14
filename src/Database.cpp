@@ -8,6 +8,11 @@ Database::Database() {
 	nicknames.clear();
 	users.clear();
 	channels.clear();
+
+    User *user = add_user("admin", "*", "*", "admin");
+    user->set_password("admin");
+    user->set_operator(true);
+
 }
 
 Database::~Database() {

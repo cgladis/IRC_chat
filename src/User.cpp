@@ -6,7 +6,7 @@
 
 User::User():
 	active(false),
-	operator(false){
+	is_operator(false){
 
 }
 
@@ -31,7 +31,10 @@ void User::set_realname(const std::string &realname) {
 }
 
 void User::set_operator(bool is_operator) {
-    this->is_operator = is_operator;
+    if (!password.empty())
+        this->is_operator = is_operator;
+    else
+        throw std::runtime_error("Can't set operator for user without password");
 }
 
 void User::set_password(const std::string &password) {
