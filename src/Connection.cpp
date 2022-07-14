@@ -225,8 +225,8 @@ int Connection::func_msg() {
 	if (commands[1][0] == '#'){
 		Message message;
 		server->add_recipients_from_channel(commands[1], nickname, message);
-		message.set_who_code_whom_command_message(nickname, "", commands[1],
-												  commands[0],
+		message.set_who_code_whom_command_group_message(nickname, "", "",
+												  commands[0], commands[1],
 												  commands[2]);
 		if (!message.is_self_only())
 			server->send_message(socket, message);
@@ -234,9 +234,9 @@ int Connection::func_msg() {
 	else{
 		Message message;
 		message.add_recipient(commands[1]);
-		message.set_who_code_whom_command_message(nickname, "", commands[1],
-												  commands[0],
-												  commands[2]);
+		message.set_who_code_whom_command_group_message(nickname, "", "",
+														commands[0], commands[1],
+														commands[2]);
 		server->send_message(socket, message);
 	}
 	return COM_NORMAL;
