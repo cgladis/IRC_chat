@@ -329,3 +329,22 @@ int Connection::func_part() {
 int Connection::func_mode() {
 	return COM_NORMAL;
 }
+
+int Connection::func_list() {
+	std::map<std::string, Channel*> channels_list = database->get_channels();
+	for (std::map<std::string, Channel*>::const_iterator it = channels_list.begin(); it != channels_list.end(); ++it){
+		Message message;
+		message.set_who_code_whom_command_group_message("ircserv", "322", nickname,
+												  it->first,
+												  std::to_string(it->second->count_members()),
+												  "");
+		server->send_message(socket, message);
+	}
+	{
+		Message message;
+		message.set_who_code_whom_command_message("ircserv", "323", nickname,
+														"","End of channel list.");
+		server->send_message(socket, message);
+	}
+	return COM_NORMAL;
+}

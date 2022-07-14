@@ -97,3 +97,6 @@ void Database::del_channel(const std::string &channel) {
 }
 
 
+std::map<std::string, Channel *> Database::get_channels() const {
+	return channels;
+}

@@ -36,6 +36,7 @@ public:
 		comlist["JOIN"] = &Connection::func_join;
 		comlist["PART"] = &Connection::func_part;
 		comlist["MODE"] = &Connection::func_mode;
+		comlist["LIST"] = &Connection::func_list;
 	}
 
 	~Connection();
@@ -60,6 +61,7 @@ public:
 	int func_join();
 	int func_part();
 	int func_mode();
+	int func_list();
 
 private:
 	int socket;

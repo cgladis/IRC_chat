@@ -25,6 +25,7 @@ public:
     void del_channel(const std::string &channel);
 	Channel* get_channel(const std::string &channel);
     bool is_channel_exist(const std::string &channel);
+	std::map<std::string, Channel*> get_channels() const;
 
 private:
 	std::set<std::string> nicknames;
