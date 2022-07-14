@@ -9,6 +9,10 @@ Server::Server(int port, std::string password): port(port), exit(false), passwor
 }
 
 Server::~Server(){
+    for (std::map<int, Connection*>::const_iterator it = connection.begin(); it != connection.end(); ++it) {
+        close(it->first);
+        delete(it->second);
+    }
 	close(fd_socket);
     std::cout << "Server stopped..." << std::endl;
 }
@@ -49,18 +53,19 @@ void Server::run() {
 			continue;
 		}
 
+        if (FD_ISSET(fd_socket, &readyRead)) {
+            int clientSock = accept(fd_socket, (struct sockaddr *) &addr, &addr_len);
+            if (clientSock < 0)
+                continue;
+            if (clientSock > max_socket)
+                max_socket = clientSock;
+            FD_SET(clientSock, &actual);
+            connection.insert(
+                    std::pair<int, Connection *>(clientSock, new Connection(clientSock, this, &database)));
+            std::cout << C_GREEN << "CLIENT " << clientSock << " connected" << C_WHITE << std::endl;
+        }
+
 		for (int current_fd = 0; current_fd <= max_socket; current_fd++) {
-			if (FD_ISSET(current_fd, &readyRead) && current_fd == fd_socket) {
-				int clientSock = accept(fd_socket, (struct sockaddr *) &addr, &addr_len);
-				if (clientSock < 0)
-					continue;
-				if (clientSock > max_socket)
-					max_socket = clientSock;
-				FD_SET(clientSock, &actual);
-				connection.insert(
-						std::pair<int, Connection *>(clientSock, new Connection(clientSock, this, &database)));
-				std::cout << C_GREEN << "CLIENT " << clientSock << " connected" << C_WHITE << std::endl;
-			}
 
 			if (FD_ISSET(current_fd, &readyRead) && current_fd != fd_socket) {
 				char tempstr[COMMAND_BUFFER_SIZE];

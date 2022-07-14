@@ -77,6 +77,11 @@ int Connection::func_exit() {
 	return COM_EXIT;
 }
 
+int Connection::func_quit() {
+    
+    return COM_QUIT;
+}
+
 int Connection::func_pass() {
     if (authorized){
         Message message;
@@ -186,11 +191,6 @@ int Connection::func_pong() {
 	return COM_NORMAL;
 }
 
-int Connection::func_quit() {
-
-	return COM_QUIT;
-}
-
 int Connection::func_msg() {
 
 	if (!check_authorized())
@@ -281,9 +281,16 @@ int Connection::func_part() {
 															commands.size() == 3 ? commands[2] : "");
 			server->send_message(socket, message);
 		}
+        if (channel->count_members() == 0)
+            database->del_channel(commands[1]);
 
 	} else {
-		//ошибка
+		Message message;
+		message.set_who_code_whom_command_message("ircserv", "403", nickname,
+												  "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
+												  "No such channel");
+		server->send_message(socket, message);
+		return COM_NORMAL;
 	}
 
 

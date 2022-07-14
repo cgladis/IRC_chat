@@ -22,6 +22,8 @@ public:
     void del_member(const std::string &member) ;
     void set_operator(const std::string &member, bool is_operator);
 
+    size_t count_members();
+
 private:
 
 	std::map<std::string, bool> members; // nickname + operator

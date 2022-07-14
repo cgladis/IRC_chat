@@ -21,6 +21,10 @@ std::string Channel::type_members() const {
 	return result;
 }
 
+size_t Channel::count_members() {
+    return members.size();
+}
+
 std::map<std::string, bool> Channel::get_members() const {
     return members;
 }
@@ -40,7 +44,8 @@ void Channel::add_member(const std::string &member) {
 
 void Channel::del_member(const std::string &member) {
 
-    members.erase(member);
+    if (members.find(member) != members.end())
+        members.erase(member);
 }
 
 void Channel::set_operator(const std::string &member, bool is_operator) {

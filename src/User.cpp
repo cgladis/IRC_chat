@@ -4,11 +4,9 @@
 
 #include "User.hpp"
 
-User::User(std::string hostname, std::string servername, std::string realname):
-	hostname(hostname),
-	servername(servername),
-	realname(realname),
-	active(false){
+User::User():
+	active(false),
+	operator(false){
 
 }
 
@@ -30,4 +28,12 @@ void User::set_servername(const std::string &servername) {
 
 void User::set_realname(const std::string &realname) {
 	this->realname = realname;
+}
+
+void User::set_operator(bool is_operator) {
+    this->is_operator = is_operator;
+}
+
+void User::set_password(const std::string &password) {
+    this->password = password;
 }

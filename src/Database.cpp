@@ -32,6 +32,12 @@ bool Database::add_nickname(const std::string &nickname) {
 void Database::delete_nickname(const std::string &nickname) {
 	if (nicknames.find(nickname) != nicknames.end())
 		nicknames.erase(nickname);
+
+    for (std::map<std::string, Channel*>::const_iterator  it; it != channels.end(); ++it) {
+        it->second->del_member(nickname);
+        if (it->second->count_members() == 0)
+            del_channel(it->first);
+    }
 }
 
 User* Database::add_user(const std::string &user, const std::string &hostname,
@@ -71,6 +77,11 @@ Channel* Database::get_channel(const std::string &channel) {
 
 bool Database::is_channel_exist(const std::string &channel) {
     return channels.find(channel) != channels.end();
+}
+
+void Database::del_channel(const std::string &channel) {
+    if (channels.find(channel) != channels.end()) {
+        channels.erase(channel);
 }
 
 
