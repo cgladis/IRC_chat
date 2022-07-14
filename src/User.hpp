@@ -10,7 +10,7 @@
 class User {
 public:
 	User();
-	void set_active(bool flag);
+	void set_active(bool is_active);
 	bool is_active();
 	void set_hostname(const std::string &hostname);
 	void set_servername(const std::string &servername);

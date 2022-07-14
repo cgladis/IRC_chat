@@ -94,6 +94,17 @@ void Server::run() {
 							connection[current_fd]->addLetterToBuff(tempstr[i]);
 					}
 				} else {
+                    {
+                        Message message;
+
+                        std::set<std::string> channels = connection[current_fd]->get_channels();
+                        for (std::set<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
+                            add_recipients_from_channel(*it, connection[current_fd]->get_nickname(), message);
+                        }
+                        message.set_who_code_whom_command_message(connection[current_fd]->get_nickname(), "" , "",
+                                                                        "QUIT","Connection closed");
+                        send_message(current_fd, message);
+                    }
 					FD_CLR(current_fd, &actual);
 					close(current_fd);
 					delete connection[current_fd];
@@ -110,19 +121,37 @@ void Server::send_message(int fd, const Message &answer) const {
 	std::string message = answer.get_message();
 	if (answer.is_self_only()) {
 		send(fd, message.c_str(), message.length(), 0);
+        std::cout << C_MINT << "CLIENT " << fd << " >> "
+                  << message << C_WHITE;
 	} else{
 		for (std::map<int, Connection*>::const_iterator it = connection.begin(); it != connection.end(); ++it){
-			if (answer.nickname_in_recipient_list(it->second->get_nickname()))
-				send(it->first, message.c_str(), message.length(), 0);
+			if (answer.nickname_in_recipient_list(it->second->get_nickname())) {
+                send(it->first, message.c_str(), message.length(), 0);
+                std::cout << C_MINT << "CLIENT " << it->first << " >> "
+                          << message << C_WHITE;
+            }
 		}
 	}
-	std::cout << C_MINT << "CLIENT " << fd << " >> "
-			  << message << C_WHITE;
+
+}
+
+void Server::add_recipients_from_channel(const std::string &channel_name, const std::string &exept, Message &answer) {
+    Channel *channel = database.get_channel(channel_name);
+    if (channel){
+        std::map<std::string, bool> members = channel->get_members();
+        for (std::map<std::string, bool>::const_iterator it = members.begin(); it != members.end(); ++it){
+            if (it->first != exept)
+                answer.add_recipient(it->first);
+        }
+    } else
+        throw std::runtime_error("channel_name is not exist");
 }
 
 bool Server::check_password(const std::string &pass) const {
     return pass == password;
 }
+
+
 
 std::ostream &operator<<(std::ostream &out, const Server &srv){
     out << "Server http://127.0.0.1:" << srv.getPort();

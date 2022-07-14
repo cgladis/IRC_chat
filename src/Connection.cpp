@@ -6,6 +6,12 @@
 
 #define CALL_MEMBER_FN(object, ptrToMember)  ((object).*(ptrToMember))
 
+Connection::~Connection() {
+    database->delete_nickname(nickname);
+    if (user_ref)
+        user_ref->set_active(false);
+}
+
 int Connection::runCommand() {
 
 	parse_command_buff();
@@ -54,6 +60,10 @@ std::string Connection::get_nickname() const{
 	return nickname;
 }
 
+std::set<std::string> Connection::get_channels() {
+    return channels;
+}
+
 bool Connection::check_authorized() const {
 	if (!authorized) {
 		Message message;
@@ -78,7 +88,14 @@ int Connection::func_exit() {
 }
 
 int Connection::func_quit() {
-    
+
+    Message message;
+    message.set_who_code_whom_command_message(nickname, "", "",
+                                              commands[0], "Quit: " + commands[1]);
+    for (std::set<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it){
+        server->add_recipients_from_channel(*it, nickname, message);
+    }
+    server->send_message(socket, message);
     return COM_QUIT;
 }
 
@@ -300,5 +317,3 @@ int Connection::func_part() {
 int Connection::func_mode() {
 	return COM_NORMAL;
 }
-
-

@@ -10,8 +10,8 @@ User::User():
 
 }
 
-void User::set_active(bool flag) {
-	active = flag;
+void User::set_active(bool is_active) {
+	active = is_active;
 }
 
 bool User::is_active() {

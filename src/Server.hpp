@@ -31,6 +31,7 @@ public:
 	void init();
 	void run();
 	void send_message(int fd, const Message &answer) const;
+    void add_recipients_from_channel(const std::string &channel_name, const std::string &exept, Message &answer);
 	bool check_password(const std::string &pass) const;
 
 private:

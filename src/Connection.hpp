@@ -38,11 +38,7 @@ public:
 		comlist["MODE"] = &Connection::func_mode;
 	}
 
-	~Connection(){
-		database->delete_nickname(nickname);
-		if (user_ref)
-			user_ref->set_active(false);
-	}
+	~Connection();
 
 	int runCommand();
 	void addLetterToBuff(char letter);
@@ -52,12 +48,14 @@ public:
 	void send_start_massage() const;
 	void parse_command_buff();
 
+    std::set<std::string> get_channels();
+
 	int func_exit();
+    int func_quit();
 	int func_pass();
 	int func_nick();
 	int func_user();
 	int func_pong();
-	int func_quit();
 	int func_msg();
 	int func_join();
 	int func_part();
