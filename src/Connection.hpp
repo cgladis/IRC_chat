@@ -51,6 +51,8 @@ public:
 
     std::set<std::string> get_channels();
 
+	bool check_authorized_user_and_message();
+
 	int func_exit();
     int func_quit();
 	int func_pass();

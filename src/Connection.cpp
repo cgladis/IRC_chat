@@ -83,6 +83,19 @@ void Connection::send_start_massage() const {
 	}
 }
 
+bool Connection::check_authorized_user_and_message() {
+	if (authorized and user_ref and !nickname.empty())
+		return true;
+	{
+		Message message;
+		message.set_who_code_whom_command_message("ircserv", "451",
+												  nickname.empty() ? "*": nickname,
+												  "", "You have not registered.");
+		server->send_message(socket, message);
+	}
+	return false;
+}
+
 int Connection::func_exit() {
 	return COM_EXIT;
 }
@@ -348,3 +361,5 @@ int Connection::func_list() {
 	}
 	return COM_NORMAL;
 }
+
+
