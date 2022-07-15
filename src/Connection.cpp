@@ -44,7 +44,7 @@ int Connection::runCommand() {
 		answer = CALL_MEMBER_FN(*this, comlist.find(commands[0])->second)();
 	} else{
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "421",
+		message.set_who_code_whom_command_message(server->get_name(), "421",
 												  !nickname.empty() ? nickname : "*",
 												  "ERR_UNKNOWNCOMMAND <" + command_buff + ">",
 												  "Unknown command");
@@ -89,7 +89,7 @@ std::set<std::string> Connection::get_channels() {
 bool Connection::check_authorized() const {
 	if (!authorized) {
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "464", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "464", nickname,
 												  "ERR_PASSWDMISMATCH", "Password incorrect");
 		server->send_message(socket, message);
 	}
@@ -99,7 +99,7 @@ bool Connection::check_authorized() const {
 void Connection::send_start_massage() const {
 	if (user_ref && !nickname.empty()) {
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "001", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "001", nickname,
 												  "", "Welcome to IRC Network " + nickname + "!");
 		server->send_message(socket, message);
 	}
@@ -110,7 +110,7 @@ bool Connection::check_authorized_user_and_message() {
 		return true;
 	{
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "451",
+		message.set_who_code_whom_command_message(server->get_name(), "451",
 												  nickname.empty() ? "*": nickname,
 												  "", "You have not registered.");
 		server->send_message(socket, message);
@@ -138,7 +138,7 @@ int Connection::func_quit() {
 int Connection::func_pass() {
     if (authorized){
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "462", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "462", nickname,
                                                   "ERR_ALREADYREGISTRED",
                                                   "You may not reregister");
         server->send_message(socket, message);
@@ -146,7 +146,7 @@ int Connection::func_pass() {
     }
     if (commands.size() < 2) {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -156,7 +156,7 @@ int Connection::func_pass() {
 		authorized = true;
 	} else{
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "464", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "464", nickname,
 												  "ERR_PASSWDMISMATCH", "Password incorrect");
 		server->send_message(socket, message);
 	}
@@ -171,13 +171,13 @@ int Connection::func_nick() {
 	Message message;
 
 	if (commands.size() == 1) {
-		message.set_who_code_whom_command_message("ircserv", "431", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "431", nickname,
 												  "ERR_NONICKNAMEGIVEN", "No nickname given");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
 	if (commands[1] == nickname) {
-		message.set_who_code_whom_command_message("ircserv", "436", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "436", nickname,
 												  "ERR_NICKCOLLISION <" + nickname +">",
 												  "Nickname collision KILL");
 		server->send_message(socket, message);
@@ -193,7 +193,7 @@ int Connection::func_nick() {
 			send_start_massage();
 		}
 	} else {
-		message.set_who_code_whom_command_message("ircserv", "433", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "433", nickname,
 												  "ERR_NICKNAMEINUSE <" + commands[1] +">",
 												  "Nickname is already in use");
 		server->send_message(socket, message);
@@ -209,14 +209,14 @@ int Connection::func_user() {
 	Message message;
 
 	if (user_ref) {
-		message.set_who_code_whom_command_message("ircserv", "462", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "462", nickname,
 												  "ERR_ALREADYREGISTRED", "You may not reregister");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
 
     if (commands.size() != 5){
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -226,7 +226,7 @@ int Connection::func_user() {
 	user_ref = database->add_user(commands[1], commands[2], commands[3], commands[4]);
 
 	if (!user_ref) {
-		message.set_who_code_whom_command_message("ircserv", "462", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "462", nickname,
 												  "ERR_ALREADYREGISTRED", "You may not reregister");
 		server->send_message(socket, message);
 		return COM_NORMAL;
@@ -272,7 +272,7 @@ int Connection::func_pong() {
 	if (commands.size() < 2){
 		{
 			Message message;
-			message.set_who_code_whom_command_message("ircserv", "461", nickname,
+			message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
 													  commands[0],
 													  "Not enough parameters.");
 			server->send_message(socket, message);
@@ -289,7 +289,7 @@ int Connection::func_msg() {
 
 	if (commands.size() != 3) {
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "461", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
 												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
 												  "Not enough parameters");
 		server->send_message(socket, message);
@@ -322,7 +322,7 @@ int Connection::func_join() {
 
     if (commands.size() != 2){
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -343,13 +343,13 @@ int Connection::func_join() {
     }
     {
         Message message;
-        message.set_who_code_whom_command_group_message("ircserv", "353" , nickname, "=",
+        message.set_who_code_whom_command_group_message(server->get_name(), "353" , nickname, "=",
                                                         commands[1], channel->type_members());
         server->send_message(socket, message);
     }
     {
         Message message;
-        message.set_who_code_whom_command_group_message("ircserv", "366" , nickname, "",
+        message.set_who_code_whom_command_group_message(server->get_name(), "366" , nickname, "",
                                                         commands[1], "End of /NAMES list.");
         server->send_message(socket, message);
     }
@@ -364,7 +364,7 @@ int Connection::func_part() {
 
 	if (commands.size() < 2 || commands.size() > 3){
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "461", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
 												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
 												  "Not enough parameters");
 		server->send_message(socket, message);
@@ -388,7 +388,7 @@ int Connection::func_part() {
 
 	} else {
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "403", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "403", nickname,
 												  "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
 												  "No such channel");
 		server->send_message(socket, message);
@@ -410,7 +410,7 @@ int Connection::func_list() {
 	std::map<std::string, Channel*> channels_list = database->get_channels();
 	for (std::map<std::string, Channel*>::const_iterator it = channels_list.begin(); it != channels_list.end(); ++it){
 		Message message;
-		message.set_who_code_whom_command_group_message("ircserv", "322", nickname,
+		message.set_who_code_whom_command_group_message(server->get_name(), "322", nickname,
 												  it->first,
 												  std::to_string(it->second->count_members()),
 												  "");
@@ -418,7 +418,7 @@ int Connection::func_list() {
 	}
 	{
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "323", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "323", nickname,
 														"","End of channel list.");
 		server->send_message(socket, message);
 	}

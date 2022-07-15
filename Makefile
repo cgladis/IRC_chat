@@ -26,7 +26,7 @@ $(OBJ_FOLDER)%.o: $(SRC_FOLDER)%.cpp
 
 	@mkdir -p $(OBJ_FOLDER)
 	@printf  "\r%-25s$(BLUE)[$<]$(RESET)\n" "$(NAME): $@"
-	$(CC) $(FLAGS) -o $@ -c $<
+	@$(CC) $(FLAGS) -o $@ -c $<
 	@printf "\033[A\033[2K"
 
 all: $(NAME)
@@ -41,8 +41,9 @@ clean:
 	@rm -rf $(OBJ_FOLDER)
 	@printf  "%-25s$(GREEN)[✔]$(RESET)\n" "$(NAME): $@"
 
-fclean: clean
+fclean:
 
+	@rm -rf $(OBJ_FOLDER)
 	@rm -f $(NAME)
 	@printf  "%-25s$(GREEN)[✔]$(RESET)\n" "$(NAME): $@"
 
@@ -50,7 +51,7 @@ re: fclean all
 
 test: all
 	@printf  "$(GREEN)TEST:$(RESET)\n"
-	./$(NAME)
+	./$(NAME) 6000 123
 
 leaks: all
 	@leaks --atExit -- ./$(NAME)
