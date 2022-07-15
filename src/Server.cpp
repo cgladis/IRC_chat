@@ -6,6 +6,7 @@
 
 
 Server::Server(int port, std::string password): port(port), exit(false), password(password) {
+	this->name = "ircserv";
 }
 
 Server::~Server(){
@@ -151,9 +152,12 @@ bool Server::check_password(const std::string &pass) const {
     return pass == password;
 }
 
+std::string Server::get_name() const {
+	return name;
+}
 
 
 std::ostream &operator<<(std::ostream &out, const Server &srv){
-    out << "Server http://127.0.0.1:" << srv.getPort();
+    out << "Server " << srv.get_name() << " http://127.0.0.1:" << srv.getPort();
     return out;
 }

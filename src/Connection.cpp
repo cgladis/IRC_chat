@@ -236,17 +236,55 @@ int Connection::func_user() {
 	return COM_NORMAL;
 }
 
+int Connection::func_ping() {
+	if (!check_authorized_user_and_message())
+		return COM_NORMAL;
+
+	if (commands.size() < 2){
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
+													  commands[0],
+													  "Not enough parameters.");
+			server->send_message(socket, message);
+		}
+	}
+	else{
+		{
+			Message message;
+			message.set_who_code_whom_command_group_message(server->get_name(), "", "",
+													  "PONG",
+													  commands.size() > 2 ? commands[2] : server->get_name(),
+													  commands[1]);
+			server->send_message(socket, message);
+		}
+	}
+
+	return 0;
+}
+
+
 int Connection::func_pong() {
 
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
+
+	if (commands.size() < 2){
+		{
+			Message message;
+			message.set_who_code_whom_command_message("ircserv", "461", nickname,
+													  commands[0],
+													  "Not enough parameters.");
+			server->send_message(socket, message);
+		}
+	}
 
 	return COM_NORMAL;
 }
 
 int Connection::func_msg() {
 
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
 	if (commands.size() != 3) {
@@ -279,7 +317,7 @@ int Connection::func_msg() {
 
 int Connection::func_join() {
 
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
     if (commands.size() != 2){
@@ -321,7 +359,7 @@ int Connection::func_join() {
 
 int Connection::func_part() {
 
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
 	if (commands.size() < 2 || commands.size() > 3){
@@ -366,6 +404,9 @@ int Connection::func_mode() {
 }
 
 int Connection::func_list() {
+	if (!check_authorized_user_and_message())
+		return COM_NORMAL;
+
 	std::map<std::string, Channel*> channels_list = database->get_channels();
 	for (std::map<std::string, Channel*>::const_iterator it = channels_list.begin(); it != channels_list.end(); ++it){
 		Message message;
@@ -386,7 +427,7 @@ int Connection::func_list() {
 
 int Connection::oper_func_kick()
 {
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
 	if (commands.size() < 2 || commands.size() > 3){
@@ -395,18 +436,21 @@ int Connection::oper_func_kick()
 												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
 												  "Not enough parameters");
 		server->send_message(socket, message);
-		return COM_NORMAL;
 	}
+	return COM_NORMAL;
 }
 
 int Connection::oper_func_mode()
 {
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
+	return COM_NORMAL;
 }
 
 int Connection::oper_func_invite()
 {
-    if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
+	return COM_NORMAL;
 }
+

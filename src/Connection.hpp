@@ -30,6 +30,7 @@ public:
 		comlist["PASS"] = &Connection::func_pass;
 		comlist["NICK"] = &Connection::func_nick;
 		comlist["USER"] = &Connection::func_user;
+		comlist["PING"] = &Connection::func_ping;
 		comlist["PONG"] = &Connection::func_pong;
 		comlist["QUIT"] = &Connection::func_quit;
 		comlist["PRIVMSG"] = &Connection::func_msg;
@@ -61,6 +62,7 @@ public:
 	int func_pass();
 	int func_nick();
 	int func_user();
+	int func_ping();
 	int func_pong();
 	int func_msg();
 	int func_join();

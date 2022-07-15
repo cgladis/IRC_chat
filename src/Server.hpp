@@ -37,6 +37,8 @@ public:
     void add_recipients_from_channel(const std::string &channel_name, const std::string &exept, Message &answer);
 	bool check_password(const std::string &pass) const;
 
+	std::string get_name() const;
+
 private:
 	Server(const Server &){}
 	Server &operator=(const Server &){return *this;}
@@ -49,6 +51,8 @@ private:
 	std::map<int, Connection*> connection;
 
 	Database database;
+
+	std::string name;
 
 };
 
