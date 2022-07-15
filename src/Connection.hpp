@@ -49,7 +49,7 @@ public:
 	void addLetterToBuff(char letter);
 	std::string get_command_buff() const;
 	std::string get_nickname() const;
-	bool check_authorized() const;
+	bool check_right_password() const;
 	void send_start_massage() const;
 	void parse_command_buff();
 

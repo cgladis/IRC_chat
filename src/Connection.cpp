@@ -86,7 +86,7 @@ std::set<std::string> Connection::get_channels() {
     return channels;
 }
 
-bool Connection::check_authorized() const {
+bool Connection::check_right_password() const {
 	if (!authorized) {
 		Message message;
 		message.set_who_code_whom_command_message(server->get_name(), "464", nickname,
@@ -165,18 +165,18 @@ int Connection::func_pass() {
 
 int Connection::func_nick() {
 
-	if (!check_authorized())
+	if (!check_right_password())
 		return COM_NORMAL;
 
-	Message message;
-
 	if (commands.size() == 1) {
+		Message message;
 		message.set_who_code_whom_command_message(server->get_name(), "431", nickname,
 												  "ERR_NONICKNAMEGIVEN", "No nickname given");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
 	if (commands[1] == nickname) {
+		Message message;
 		message.set_who_code_whom_command_message(server->get_name(), "436", nickname,
 												  "ERR_NICKCOLLISION <" + nickname +">",
 												  "Nickname collision KILL");
@@ -185,7 +185,18 @@ int Connection::func_nick() {
 	}
 	if (database->add_nickname(commands[1])) {
 		if (!nickname.empty()) {
-			database->delete_nickname(nickname);
+			{
+				Message message;
+
+				for (std::set<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it){
+					server->add_recipients_from_channel(*it, "", message);
+				}
+				message.set_who_code_whom_command_message(nickname, "", "",
+																commands[0],
+																commands[1]);
+				server->send_message(socket, message);
+			}
+			database->change_nickname(nickname, commands[1]);
 			nickname = commands[1];
 		}
 		else {
@@ -193,6 +204,7 @@ int Connection::func_nick() {
 			send_start_massage();
 		}
 	} else {
+		Message message;
 		message.set_who_code_whom_command_message(server->get_name(), "433", nickname,
 												  "ERR_NICKNAMEINUSE <" + commands[1] +">",
 												  "Nickname is already in use");
@@ -203,7 +215,7 @@ int Connection::func_nick() {
 
 int Connection::func_user() {
 
-	if (!check_authorized())
+	if (!check_right_password())
 		return COM_NORMAL;
 
 	Message message;

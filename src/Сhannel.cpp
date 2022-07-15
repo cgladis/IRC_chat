@@ -55,5 +55,18 @@ void Channel::set_operator(const std::string &member, bool is_operator) {
 }
 
 
+bool Channel::is_member(const std::string &member) {
+	return members.find(member) != members.end();
+}
+
+bool Channel::is_operator(const std::string &member) {
+	if (is_member(member))
+		return members[member];
+	else
+		throw std::runtime_error("No member <" + member + "> in channel");
+}
+
+
+
 
 

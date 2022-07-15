@@ -17,6 +17,7 @@ public:
 	~Database();
 	bool add_nickname(const std::string &nickname);
 	void delete_nickname(const std::string &nickname);
+	void change_nickname(std::string old_nick, std::string new_nick);
 
 	User* add_user(const std::string &user, const std::string &hostname,
 				  const std::string &servername, const std::string &realname);

@@ -41,11 +41,35 @@ void Database::delete_nickname(const std::string &nickname) {
 	std::map<std::string, Channel*>::iterator it = channels.begin();
 	while (it != channels.end()){
 		it->second->del_member(nickname);
-		if (it->second->count_members() == 0)
-			channels.erase(it);
-		it++;
+		if (it->second->count_members() == 0) {
+			channels.erase(it++);
+		}
+		else
+			it++;
 	}
 }
+
+
+void Database::change_nickname(std::string old_nick, std::string new_nick) {
+
+	if (nicknames.find(old_nick) != nicknames.end()) {
+		nicknames.erase(old_nick);
+		nicknames.insert(new_nick);
+	}
+
+	for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); ++it){
+		if (it->second->is_member(old_nick)){
+			bool is_operator = it->second->is_operator(old_nick);
+			it->second->del_member(old_nick);
+			it->second->add_member(new_nick);
+			it->second->set_operator(new_nick, is_operator);
+		}
+	}
+
+
+
+}
+
 
 User* Database::add_user(const std::string &user, const std::string &hostname,
 						const std::string &servername, const std::string &realname) {
@@ -99,3 +123,4 @@ void Database::del_channel(const std::string &channel) {
 std::map<std::string, Channel *> Database::get_channels() const {
 	return channels;
 }
+

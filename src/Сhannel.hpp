@@ -22,6 +22,9 @@ public:
     void del_member(const std::string &member) ;
     void set_operator(const std::string &member, bool is_operator);
 
+	bool is_member(const std::string &member);
+	bool is_operator(const std::string &member);
+
     size_t count_members();
 
 private:
