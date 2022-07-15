@@ -18,6 +18,7 @@ public:
 	bool add_nickname(const std::string &nickname);
 	void delete_nickname(const std::string &nickname);
 	void change_nickname(std::string old_nick, std::string new_nick);
+	bool is_nickname_exist(const std::string &nickname);
 
 	User* add_user(const std::string &user, const std::string &hostname,
 				  const std::string &servername, const std::string &realname);

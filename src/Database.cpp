@@ -65,9 +65,10 @@ void Database::change_nickname(std::string old_nick, std::string new_nick) {
 			it->second->set_operator(new_nick, is_operator);
 		}
 	}
+}
 
-
-
+bool Database::is_nickname_exist(const std::string &nickname) {
+	return nicknames.find(nickname) != nicknames.end();
 }
 
 
@@ -123,4 +124,5 @@ void Database::del_channel(const std::string &channel) {
 std::map<std::string, Channel *> Database::get_channels() const {
 	return channels;
 }
+
 

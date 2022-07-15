@@ -34,6 +34,7 @@ public:
 		comlist["PONG"] = &Connection::func_pong;
 		comlist["QUIT"] = &Connection::func_quit;
 		comlist["PRIVMSG"] = &Connection::func_msg;
+		comlist["NOTICE"] = &Connection::func_msg;
 		comlist["JOIN"] = &Connection::func_join;
 		comlist["PART"] = &Connection::func_part;
 		comlist["MODE"] = &Connection::func_mode;

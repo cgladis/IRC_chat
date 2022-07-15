@@ -308,21 +308,43 @@ int Connection::func_msg() {
 		return COM_NORMAL;
 	}
 	if (commands[1][0] == '#'){
-		Message message;
-		server->add_recipients_from_channel(commands[1], nickname, message);
-		message.set_who_code_whom_command_group_message(nickname, "", "",
-												  commands[0], commands[1],
-												  commands[2]);
-		if (!message.is_self_only())
+		if (database->is_channel_exist(commands[1])){
+			Message message;
+			server->add_recipients_from_channel(commands[1], nickname, message);
+			message.set_who_code_whom_command_group_message(nickname, "", "",
+															commands[0], commands[1],
+															commands[2]);
+			if (!message.is_self_only())
+				server->send_message(socket, message);
+		}
+		else
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "403", nickname,
+													  commands[1],
+													  "No such channel");
 			server->send_message(socket, message);
+		}
 	}
-	else{
-		Message message;
-		message.add_recipient(commands[1]);
-		message.set_who_code_whom_command_group_message(nickname, "", "",
-														commands[0], commands[1],
-														commands[2]);
-		server->send_message(socket, message);
+	else
+	{
+		if (database->is_nickname_exist(commands[1]))
+		{
+			Message message;
+			message.add_recipient(commands[1]);
+			message.set_who_code_whom_command_group_message(nickname, "", "",
+															commands[0], commands[1],
+															commands[2]);
+			server->send_message(socket, message);
+		}
+		else
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "401", nickname,
+													  commands[1],
+													  "No such nick");
+			server->send_message(socket, message);
+		}
 	}
 	return COM_NORMAL;
 }
@@ -465,4 +487,5 @@ int Connection::oper_func_invite()
 		return COM_NORMAL;
 	return COM_NORMAL;
 }
+
 
