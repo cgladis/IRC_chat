@@ -38,13 +38,12 @@ void Database::delete_nickname(const std::string &nickname) {
 	if (nicknames.find(nickname) != nicknames.end())
 		nicknames.erase(nickname);
 
-	std::map<std::string, Channel*>::const_iterator it = channels.begin();
+	std::map<std::string, Channel*>::iterator it = channels.begin();
 	while (it != channels.end()){
 		it->second->del_member(nickname);
 		if (it->second->count_members() == 0)
-			channels.erase(it++);
-		else
-			it++;
+			channels.erase(it);
+		it++;
 	}
 }
 
@@ -81,7 +80,7 @@ Channel* Database::add_channel(const std::string &channel) {
 
 Channel* Database::get_channel(const std::string &channel){
 	if (channels.find(channel) == channels.end()) {
-		channels[channel] = nullptr;
+		channels[channel] = NULL; //nullptr
 	}
 	return channels[channel];
 }

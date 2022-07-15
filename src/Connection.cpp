@@ -12,8 +12,30 @@ Connection::~Connection() {
         user_ref->set_active(false);
 }
 
+void	com_parser(std::string &buf)
+{
+	size_t		i = 0;
+
+	while (buf[i] != '\0')
+	{
+		if (buf[i] == ' ')
+			break ;
+		if (iscntrl(buf[i]))
+			buf = buf.erase(i, 1);
+		i++;
+	}
+
+	size_t	j = buf.find(' ') + 1;
+
+	while (buf[j] == ' ')
+	{
+		buf = buf.erase(j, 1);
+	}
+}
+
 int Connection::runCommand() {
 
+	com_parser(command_buff);
 	parse_command_buff();
 
 	int answer;
@@ -347,4 +369,31 @@ int Connection::func_list() {
 		server->send_message(socket, message);
 	}
 	return COM_NORMAL;
+}
+
+int Connection::oper_func_kick()
+{
+	if (!check_authorized())
+		return COM_NORMAL;
+
+	if (commands.size() < 2 || commands.size() > 3){
+		Message message;
+		message.set_who_code_whom_command_message("ircserv", "461", nickname,
+												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
+												  "Not enough parameters");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}
+}
+
+int Connection::oper_func_mode()
+{
+	if (!check_authorized())
+		return COM_NORMAL;
+}
+
+int Connection::oper_func_invite()
+{
+    if (!check_authorized())
+		return COM_NORMAL;
 }

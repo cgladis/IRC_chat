@@ -10,6 +10,9 @@
 #include <sys/socket.h>
 #include <stdexcept>
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <cctype>
 #include <map>
 #include "server_commands.h"
 #include "Connection.hpp"
