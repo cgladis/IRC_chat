@@ -109,7 +109,7 @@ void Connection::send_start_massage() const {
 		{
 			Message message;
 			message.set_who_code_whom_command_group_message("today_bot", "", "",
-															"NOTICE", "nickname",
+															"NOTICE", nickname,
 															server->get_data_from_api());
 			server->send_message(socket, message);
 		}

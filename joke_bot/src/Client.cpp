@@ -126,20 +126,33 @@ std::string Client::get_data_from_api() {
 void Client::runCommand() {
 	parse_command_buff();
 
+	if (commands.size() > 3){
+		if (commands[1] == "JOIN"){
+			{
+				Message message;
+				message.command_whom_message("PRIVMSG", commands[2],
+											 "Hi, " + commands[0] + "!");
+				send_message(message);
+			}
+		}
+	}
+
+	commands.clear();
 	command_buff.clear();
 }
 
 void Client::parse_command_buff() {
 
-	std::stringstream first_part(command_buff.substr(0, command_buff.find(':')));
+
+	std::stringstream first_part(command_buff.substr( command_buff.find(':')));
 	std::string parsed;
 
 	while (getline(first_part, parsed, ' ')) {
 		commands.push_back(parsed);
 	}
 
-	if (command_buff.find(':') != std::string::npos) {
-		commands.push_back(command_buff.substr( command_buff.find(':') + 1));
+	if (command_buff.find(':', 1) != std::string::npos) {
+		commands.push_back(command_buff.substr( command_buff.find(':', 1) + 1));
 	}
 
 }
