@@ -60,6 +60,8 @@ void Client::run() {
 					std::cout << C_BLUE << name << " << "
 							  << command_buff << C_WHITE << std::endl;
 					runCommand();
+					commands.clear();
+					command_buff.clear();
 				} else if (tempstr[i] == '\r')
 					continue;
 				else
@@ -86,7 +88,66 @@ std::string Client::get_name() const {
 	return name;
 }
 
-std::string Client::get_data_from_api() {
+
+void Client::runCommand() {
+	parse_command_buff();
+
+	if (commands.size() >= 3){
+		if (commands[0] == name)
+			return;
+
+		if (commands[1] == "JOIN") {
+			std::vector<std::string> messages;
+			messages.push_back("Hi, " + commands[0] + "!");
+			messages.push_back("I know all about numbers");
+			messages.push_back("Type any number");
+
+			for (std::vector<std::string>::const_iterator it = messages.begin(); it != messages.end(); ++it) {
+				{
+					Message message;
+					message.command_whom_message("PRIVMSG", commands[2],
+												 *it);
+					send_message(message);
+				}
+			}
+		}
+		if (commands[1] == "PRIVMSG" and commands[2] != name){
+			{
+				Message message;
+				message.command_whom_message("PRIVMSG", commands[2],
+											 get_info_about_numbers(atoi(commands[3].data())));
+				send_message(message);
+			}
+		}
+		else if (commands[1] == "PRIVMSG" and commands[2] == name){
+			{
+				Message message;
+				message.command_whom_message("PRIVMSG", commands[0],
+											 get_info_about_numbers(atoi(commands[3].data())));
+				send_message(message);
+			}
+		}
+	}
+}
+
+void Client::parse_command_buff() {
+
+	if (command_buff[0] == ':')
+		command_buff.erase(0,1);
+	std::stringstream first_part(command_buff.substr(0,command_buff.find(':')));
+	std::string parsed;
+
+	while (getline(first_part, parsed, ' ')) {
+		commands.push_back(parsed);
+	}
+
+	if (command_buff.find(':') != std::string::npos) {
+		commands.push_back(command_buff.substr( command_buff.find(':') + 1));
+	}
+
+}
+
+std::string Client::get_info_about_numbers(int nomber) {
 
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -98,11 +159,7 @@ std::string Client::get_data_from_api() {
 	if (connect(sock, (const struct sockaddr *) &addr, sizeof addr) < 0)
 		return "Service unavailable";
 
-	std::time_t t = std::time(nullptr);
-	std::tm tm = *std::localtime(&t);
-
-	std::string header = "GET /" + std::to_string(tm.tm_mon + 1) + "/"
-						 + std::to_string(tm.tm_mday) + "/date HTTP/1.1\n";
+	std::string header = "GET /" + std::to_string(nomber) + " HTTP/1.1\n";
 	header += "Host: 159.65.220.83\n";
 	header += "Accept: */*\n";
 	header += "User-Agent: " + name + "\n";
@@ -112,51 +169,15 @@ std::string Client::get_data_from_api() {
 
 	send(sock, header.data(), header.length(), 0);
 
-	char buf[1024];
+	char buf[2048];
 	size_t rez = recv(sock, buf, sizeof(buf), 0);
 	buf[rez] = '\0';
 
 	close(sock);
 
 	std::string str = buf;
-
 	return str.substr(str.find("\r\n\r\n") + 4);
 }
-
-void Client::runCommand() {
-	parse_command_buff();
-
-	if (commands.size() > 3){
-		if (commands[1] == "JOIN"){
-			{
-				Message message;
-				message.command_whom_message("PRIVMSG", commands[2],
-											 "Hi, " + commands[0] + "!");
-				send_message(message);
-			}
-		}
-	}
-
-	commands.clear();
-	command_buff.clear();
-}
-
-void Client::parse_command_buff() {
-
-
-	std::stringstream first_part(command_buff.substr( command_buff.find(':')));
-	std::string parsed;
-
-	while (getline(first_part, parsed, ' ')) {
-		commands.push_back(parsed);
-	}
-
-	if (command_buff.find(':', 1) != std::string::npos) {
-		commands.push_back(command_buff.substr( command_buff.find(':', 1) + 1));
-	}
-
-}
-
 
 std::ostream &operator<<(std::ostream &out, const Client &bot) {
 	out << bot.get_name();

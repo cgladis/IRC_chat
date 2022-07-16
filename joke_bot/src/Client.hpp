@@ -16,9 +16,11 @@
 #include <cctype>
 #include <arpa/inet.h>
 #include <vector>
+#include <map>
 #include "server_commands.h"
 #include "colors.hpp"
 #include "Message.hpp"
+
 
 #define COMMAND_BUFFER_SIZE 100
 
@@ -26,14 +28,14 @@ class Client {
 
 public:
     Client(std::string addr_ip, int port, std::string password): addr_ip(addr_ip), port(port), exit(false), password(password) {
-		this->name = "joke_bot";
+		this->name = "numbers_bot";
 
 		command_buff.clear();
 		commands.clear();
 
 
 		channels.clear();
-		channels.insert("#jokes");
+		channels.insert("#numbers");
 	}
     ~Client();
 
@@ -46,7 +48,7 @@ public:
 	void runCommand();
 	void parse_command_buff();
 
-	std::string get_data_from_api();
+	std::string get_info_about_numbers(int nomber);
 
 private:
 	Client(const Client &){}
