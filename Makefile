@@ -1,7 +1,8 @@
 NAME = ircserv
 
 #BOTS
-JOKE_BOT_PATH = ./joke_bot/
+BOT_PATH = ./numbers_bot_folder/
+BOT_NAME = numbers_bot
 
 #COLORS
 RED = \033[0;31m
@@ -41,25 +42,28 @@ $(NAME): $(OBJ)
 
 clean:
 
+	@$(MAKE) -C $(BOT_PATH) clean
 	@rm -rf $(OBJ_FOLDER)
 	@printf  "%-25s$(GREEN)[✔]$(RESET)\n" "$(NAME): $@"
 
 fclean:
 
+	@$(MAKE) -C $(BOT_PATH) fclean
 	@rm -rf $(OBJ_FOLDER)
 	@rm -f $(NAME)
+	@rm -f $(BOT_NAME)
 	@printf  "%-25s$(GREEN)[✔]$(RESET)\n" "$(NAME): $@"
 
 re: fclean all
 
 bot:
-	@$(MAKE) -C $(JOKE_BOT_PATH)
-	cp $(JOKE_BOT_PATH)joke_bot .
+	@$(MAKE) -C $(BOT_PATH)
+	@cp $(BOT_PATH)$(BOT_NAME) .
 
 test: all bot
 	@printf  "$(GREEN)TEST:$(RESET)\n"
-	./$(NAME) 6000 123
-	./joke_bot
+	./$(NAME) 6000 123 &
+	./$(BOT_NAME) 6000 123 &
 
 leaks: all
 	@leaks --atExit -- ./$(NAME)

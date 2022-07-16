@@ -1,4 +1,4 @@
-NAME = joke_bot
+NAME = numbers_bot
 
 #COLORS
 RED = \033[0;31m
