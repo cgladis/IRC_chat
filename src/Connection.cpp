@@ -97,11 +97,22 @@ bool Connection::check_right_password() const {
 }
 
 void Connection::send_start_massage() const {
+
 	if (user_ref && !nickname.empty()) {
-		Message message;
-		message.set_who_code_whom_command_message(server->get_name(), "001", nickname,
-												  "", "Welcome to IRC Network " + nickname + "!");
-		server->send_message(socket, message);
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "001", nickname,
+													  "",
+													  "Welcome to IRC Network " + nickname + "!");
+			server->send_message(socket, message);
+		}
+		{
+			Message message;
+			message.set_who_code_whom_command_group_message("today_bot", "", "",
+															"NOTICE", "nickname",
+															server->get_data_from_api());
+			server->send_message(socket, message);
+		}
 	}
 }
 

@@ -19,6 +19,7 @@
 #include "colors.hpp"
 #include "Database.hpp"
 #include "Message.hpp"
+#include <arpa/inet.h>
 
 #define COMMAND_BUFFER_SIZE 100
 
@@ -38,6 +39,8 @@ public:
 	bool check_password(const std::string &pass) const;
 
 	std::string get_name() const;
+
+	std::string get_data_from_api();
 
 private:
 	Server(const Server &){}
