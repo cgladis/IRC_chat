@@ -1,7 +1,4 @@
-NAME = ircserv
-
-#BOTS
-JOKE_BOT_PATH = ./joke_bot/
+NAME = joke_bot
 
 #COLORS
 RED = \033[0;31m
@@ -16,7 +13,7 @@ OBJ_FOLDER = ./obj/
 HPP_FOLDER = ./includes/
 
 #FILES
-SRC_NAME = ircserv.cpp Server.cpp Database.cpp Connection.cpp User.cpp Сhannel.cpp Message.cpp
+SRC_NAME = joke_bot.cpp Client.cpp Message.cpp
 
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 OBJ = $(addprefix $(OBJ_FOLDER), $(OBJ_NAME))
@@ -52,14 +49,9 @@ fclean:
 
 re: fclean all
 
-bot:
-	@$(MAKE) -C $(JOKE_BOT_PATH)
-	cp $(JOKE_BOT_PATH)joke_bot .
-
-test: all bot
+test: all
 	@printf  "$(GREEN)TEST:$(RESET)\n"
 	./$(NAME) 6000 123
-	./joke_bot
 
 leaks: all
 	@leaks --atExit -- ./$(NAME)
