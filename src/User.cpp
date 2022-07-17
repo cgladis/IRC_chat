@@ -45,3 +45,8 @@ void User::set_operator(bool is_operator) {
 void User::set_password(const std::string &password) {
     this->password = password;
 }
+
+std::string	get_password() const
+{
+	return (password);
+}

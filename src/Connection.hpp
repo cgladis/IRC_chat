@@ -41,6 +41,8 @@ public:
 		comlist["LIST"] = &Connection::func_list;
 		comlist["KICK"] = &Connection::oper_func_kick;
 		comlist["INVITE"] = &Connection::oper_func_invite;
+		comlist["KILL"] = &Connection::func_kill;
+		comlist["OPER"] = &Connection::func_oper;
 	}
 
 	~Connection();
@@ -69,9 +71,10 @@ public:
 	int func_part();
 	int func_mode();
 	int func_list();
+	int	func_kill();
+	int	func_oper();
 	
     int oper_func_kick();
-    int oper_func_mode();
     int oper_func_invite();
 
 private:

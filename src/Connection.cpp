@@ -645,3 +645,85 @@ int Connection::oper_func_invite() {
 
     return COM_NORMAL;
 }
+
+int	Connection::func_kill()
+{
+	if (!check_authorized_user_and_message())
+		return COM_NORMAL;
+
+	if (commands.size() < 2 || commands.size() > 3){
+        Message message;
+        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+                                                  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
+                                                  "Not enough parameters");
+        server->send_message(socket, message);
+        return COM_NORMAL;
+    }
+
+	if (!is_operator)
+	{
+		Message	message;
+		message.set_who_code_whom_command_message("ircserv", "481", nickname,
+												  "ERR_NOPRIVILEGES <" + commands[0] + ">",
+												  "No such nick"); // написать
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}
+
+	if (!database->is_nickname_exist(commands[1]))
+	{
+		Message	message;
+		message.set_who_code_whom_command_message("ircserv", "401", nickname,
+												  "ERR_NOSUCHNICK <" + commands[0] + ">",
+												  "You're not channel operator");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}
+	else
+	{
+		Message message;
+   		message.set_who_code_whom_command_message(nickname, "", "",
+                                              commands[0], "Quit: " + commands[1]);
+    	for (std::set<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it){
+        	server->add_recipients_from_channel(*it, commands[1], message);
+    	}
+		if (!message.is_self_only())
+			server->send_message(socket, message);
+    	return COM_QUIT;
+	}
+	
+}
+
+int	Connection::func_oper()
+{
+	if (!check_authorized_user_and_message())
+		return COM_NORMAL;
+
+	if (commands.size() != 3){
+        Message message;
+        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+                                                  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
+                                                  "Not enough parameters");
+        server->send_message(socket, message);
+        return COM_NORMAL;
+    }
+	if (database->user->get_password() != commands[2] || commands[1] != "admin")
+	{
+		Message message;
+        message.set_who_code_whom_command_message("ircserv", "464", nickname,
+                                                  "ERR_PASSWDMISMATCH <" + commands[0] + ">",
+                                                  "Password incorrect");
+        server->send_message(socket, message);
+        return COM_NORMAL;
+	}
+	else
+	{
+		is_operator = true;
+		Message message;
+
+        server->add_recipients_from_channel(commands[1], "", message);
+        message.set_who_code_whom_command_group_message(nickname, "", "", "MODE", commands[1] + " " + commands[2],
+                                                        commands[3]);
+        server->send_message(socket, message);
+	}
+}
