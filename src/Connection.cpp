@@ -665,7 +665,7 @@ int	Connection::func_kill()
 		Message	message;
 		message.set_who_code_whom_command_message(server->get_name(), "481", nickname,
 												  "ERR_NOPRIVILEGES <" + commands[0] + ">",
-												  "No such nick"); // написать
+												  "No such nick");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
@@ -675,20 +675,18 @@ int	Connection::func_kill()
 		Message	message;
 		message.set_who_code_whom_command_message(server->get_name(), "401", nickname,
 												  "ERR_NOSUCHNICK <" + commands[0] + ">",
-												  "You're not channel operator");
+												  "");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
 	else
 	{
+		server->nickname_to_kill(commands[1]);
 		Message message;
    		message.set_who_code_whom_command_message(nickname, "", "",
-                                              commands[0], "Quit: " + commands[1]);
-    	for (std::set<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it){
-        	server->add_recipients_from_channel(*it, commands[1], message);
-    	}
-		if (!message.is_self_only())
-			server->send_message(socket, message);
+                                              commands[0], commands[1]);
+    	database->add_recipients_all_users("", message.get_nicknames());
+		server->send_message(socket, message);
     	return COM_QUIT;
 	}
 	
