@@ -46,7 +46,6 @@ void User::set_password(const std::string &password) {
     this->password = password;
 }
 
-std::string	get_password() const
-{
-	return (password);
+bool User::check_password(std::string password) const {
+    return this->password == password;
 }

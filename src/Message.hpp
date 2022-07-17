@@ -27,6 +27,7 @@ public:
 										   std::string command, std::string message);
     void set_who_code_whom_command_group_message(std::string who, std::string code, std::string whom,
                                                  std::string command, std::string group, std::string message);
+    std::set<std::string> &get_nicknames();
 
 private:
 	std::set<std::string> nicknames;

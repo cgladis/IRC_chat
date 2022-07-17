@@ -87,6 +87,10 @@ void Message::set_who_code_whom_command_group_message(std::string who, std::stri
 
 }
 
+std::set<std::string> &Message::get_nicknames() {
+	return nicknames;
+}
+
 std::ostream &operator<<(std::ostream &out, const Message &message){
 	out << message.get_message();
 	return out;

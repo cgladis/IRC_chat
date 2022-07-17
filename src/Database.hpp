@@ -22,12 +22,15 @@ public:
 
 	User* add_user(const std::string &user, const std::string &hostname,
 				  const std::string &servername, const std::string &realname);
+    User* get_user(const std::string &user);
 
 	Channel* add_channel(const std::string &channel);
     void del_channel(const std::string &channel);
 	Channel* get_channel(const std::string &channel);
     bool is_channel_exist(const std::string &channel);
 	std::map<std::string, Channel*> get_channels() const;
+
+    void add_recipients_all_users(const std::string &exept, std::set<std::string> &recipients);
 
 private:
 	std::set<std::string> nicknames;

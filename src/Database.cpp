@@ -127,4 +127,17 @@ std::map<std::string, Channel *> Database::get_channels() const {
 	return channels;
 }
 
+User *Database::get_user(const std::string &user) {
+    if (users.find(user) != users.end())
+        return users[user];
+    else
+        return NULL;
+}
 
+void Database::add_recipients_all_users(const std::string &exept, std::set<std::string> &recipients){
+
+    for (std::set<std::string>::const_iterator it = nicknames.begin(); it != nicknames.end(); ++it){
+        if (*it != exept)
+            recipients.insert(*it);
+    }
+}

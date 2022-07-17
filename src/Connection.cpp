@@ -472,7 +472,7 @@ int Connection::oper_func_kick() {
 
     if (commands.size() < 3 || commands.size() > 4) {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -482,7 +482,7 @@ int Connection::oper_func_kick() {
     Channel *channel = database->get_channel(commands[1]);
     if (!channel->is_operator(nickname)) {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "482", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "482", nickname,
                                                   "ERR_CHANOPRIVSNEEDED <" + commands[0] + ">",
                                                   "You're not channel operator");
         server->send_message(socket, message);
@@ -491,7 +491,7 @@ int Connection::oper_func_kick() {
 
     if (!channel->is_member(nickname)) {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "442", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "442", nickname,
                                                   "ERR_NOTONCHANNEL <" + commands[1] + ">",
                                                   "You're not on that channel");
         server->send_message(socket, message);
@@ -514,7 +514,7 @@ int Connection::oper_func_kick() {
 
     } else {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "403", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "403", nickname,
                                                   "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
                                                   "No such channel");
         server->send_message(socket, message);
@@ -531,7 +531,7 @@ int Connection::func_mode() {
     Channel *channel = database->get_channel(commands[1]);
     if (!channel->is_operator(nickname)) {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "482", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "482", nickname,
                                                   "ERR_CHANOPRIVSNEEDED <" + commands[0] + ">",
                                                   "You're not channel operator");
         server->send_message(socket, message);
@@ -541,7 +541,7 @@ int Connection::func_mode() {
     if (commands.size() == 4) {
         if (channels.find(commands[1]) == channels.end()) {
             Message message;
-            message.set_who_code_whom_command_message("ircserv", "403", nickname,
+            message.set_who_code_whom_command_message(server->get_name(), "403", nickname,
                                                       "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
                                                       "No such channel");
             server->send_message(socket, message);
@@ -554,7 +554,7 @@ int Connection::func_mode() {
                 server->add_recipients_from_channel(commands[1], "", message);
                 message.set_who_code_whom_command_group_message(nickname, "", "", "MODE",
                                                                 commands[1] + " " + commands[2],
-                                                                commands[3]); //вывести сообщение
+                                                                commands[3]);
                 server->send_message(socket, message);
             }
             channel->set_operator(commands[3], true);
@@ -566,7 +566,7 @@ int Connection::func_mode() {
                 server->add_recipients_from_channel(commands[1], "", message);
                 message.set_who_code_whom_command_group_message(nickname, "", "", "MODE",
                                                                 commands[1] + " " + commands[2],
-                                                                commands[3]); //вывести сообщение
+                                                                commands[3]);
                 server->send_message(socket, message);
             }
             channel->set_operator(commands[3], false);
@@ -575,7 +575,7 @@ int Connection::func_mode() {
         return COM_NORMAL;
     } else {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -594,7 +594,7 @@ int Connection::oper_func_invite() {
     if (!channel)
     {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "403", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "403", nickname,
                                                   commands[2],
                                                   "No such channel");
         server->send_message(socket, message);
@@ -603,7 +603,7 @@ int Connection::oper_func_invite() {
 
     if (!channel->is_operator(nickname)) {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "482", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "482", nickname,
                                                   "ERR_CHANOPRIVSNEEDED <" + commands[0] + ">",
                                                   "You're not channel operator");
         server->send_message(socket, message);
@@ -612,7 +612,7 @@ int Connection::oper_func_invite() {
 
     if (commands.size() != 3) {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -632,13 +632,13 @@ int Connection::oper_func_invite() {
     }
     {
         Message message;
-        message.set_who_code_whom_command_group_message("ircserv", "353", nickname, "=",
+        message.set_who_code_whom_command_group_message(server->get_name(), "353", nickname, "=",
                                                         commands[2], channel->type_members());
         server->send_message(socket, message);
     }
     {
         Message message;
-        message.set_who_code_whom_command_group_message("ircserv", "366", nickname, "",
+        message.set_who_code_whom_command_group_message(server->get_name(), "366", nickname, "",
                                                         commands[2], "End of /NAMES list.");
         server->send_message(socket, message);
     }
@@ -653,7 +653,7 @@ int	Connection::func_kill()
 
 	if (commands.size() < 2 || commands.size() > 3){
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -663,7 +663,7 @@ int	Connection::func_kill()
 	if (!is_operator)
 	{
 		Message	message;
-		message.set_who_code_whom_command_message("ircserv", "481", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "481", nickname,
 												  "ERR_NOPRIVILEGES <" + commands[0] + ">",
 												  "No such nick"); // написать
 		server->send_message(socket, message);
@@ -673,7 +673,7 @@ int	Connection::func_kill()
 	if (!database->is_nickname_exist(commands[1]))
 	{
 		Message	message;
-		message.set_who_code_whom_command_message("ircserv", "401", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "401", nickname,
 												  "ERR_NOSUCHNICK <" + commands[0] + ">",
 												  "You're not channel operator");
 		server->send_message(socket, message);
@@ -701,29 +701,49 @@ int	Connection::func_oper()
 
 	if (commands.size() != 3){
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
         return COM_NORMAL;
     }
-	if (database->user->get_password() != commands[2] || commands[1] != "admin")
-	{
-		Message message;
-        message.set_who_code_whom_command_message("ircserv", "464", nickname,
+    User *user = database->get_user(commands[1]);
+    if (!user)
+    {
+        Message message;
+        message.set_who_code_whom_command_message(server->get_name(), "464", nickname,
                                                   "ERR_PASSWDMISMATCH <" + commands[0] + ">",
                                                   "Password incorrect");
         server->send_message(socket, message);
         return COM_NORMAL;
-	}
+    }
+    else if (!user->check_password(commands[2]))
+    {
+        Message message;
+        message.set_who_code_whom_command_message(server->get_name(), "464", nickname,
+                                                  "ERR_PASSWDMISMATCH <" + commands[0] + ">",
+                                                  "Password incorrect");
+        server->send_message(socket, message);
+        return COM_NORMAL;
+    }
 	else
 	{
 		is_operator = true;
-		Message message;
+        {
+            Message message;
 
-        server->add_recipients_from_channel(commands[1], "", message);
-        message.set_who_code_whom_command_group_message(nickname, "", "", "MODE", commands[1] + " " + commands[2],
-                                                        commands[3]);
-        server->send_message(socket, message);
+            database->add_recipients_all_users("", message.get_nicknames());
+            message.set_who_code_whom_command_group_message(server->get_name(), "", "",
+                                                            "MODE +o", "",nickname);
+            server->send_message(socket, message);
+        }
+        {
+            Message message;
+            message.set_who_code_whom_command_message(server->get_name(), "381", nickname,
+                                                      "RPL_YOUREOPER",
+                                                      "You are now an IRC operator");
+            server->send_message(socket, message);
+        }
 	}
+    return COM_NORMAL;
 }
