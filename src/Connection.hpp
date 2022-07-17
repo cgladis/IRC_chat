@@ -21,8 +21,8 @@ class Connection {
 
 public:
 
-	Connection(int socket, Server *server, Database *database): socket(socket), authorized(false), server(server),
-													database(database), user_ref(NULL) {
+	Connection(int socket, Server *server, Database *database): socket(socket), authorized(false), is_operator(false),
+                                                    server(server), database(database), user_ref(NULL) {
 		commands.clear();
         channels.clear();
 
@@ -77,6 +77,7 @@ public:
 private:
 	int socket;
 	bool authorized;
+    bool is_operator;
 	std::string command_buff;
 	std::vector<std::string> commands;
     std::set<std::string> channels;

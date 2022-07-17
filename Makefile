@@ -1,4 +1,5 @@
 NAME = ircserv
+PORT = 6001
 
 #BOTS
 BOT_PATH = ./numbers_bot_folder/
@@ -62,8 +63,8 @@ bot:
 
 test: all bot
 	@printf  "$(GREEN)TEST:$(RESET)\n"
-	./$(NAME) 6000 123 &
-	./$(BOT_NAME) 6000 123 &
+	./$(NAME) $(PORT) 123 &
+	./$(BOT_NAME) $(PORT) 123 &
 
 leaks: all
 	@leaks --atExit -- ./$(NAME)
