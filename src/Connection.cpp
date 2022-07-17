@@ -472,8 +472,8 @@ int Connection::oper_func_kick()
 		return COM_NORMAL;
 
 	// не могу придумать, как проверить на оператора((((
-	//Channel	*channel = database->get_channel(commands[1]);
-	/*if (!channel->oper_check(nickname))
+	Channel	*channel = database->get_channel(commands[1]);
+	if (!channel->is_operator(nickname))
 	{
 		Message	message;
 		message.set_who_code_whom_command_message("ircserv", "482", nickname,
@@ -481,7 +481,7 @@ int Connection::oper_func_kick()
 												  "You're not channel operator");
 		server->send_message(socket, message);
 		return COM_NORMAL;
-	}*/
+	}
 
 	if (commands.size() < 3 || commands.size() > 4){
 		Message message;
@@ -491,7 +491,7 @@ int Connection::oper_func_kick()
 		server->send_message(socket, message);
 	}
 
-	/*if (!channel->member_check(nickname))
+	if (!channel->is_member(nickname))
 	{
 		Message message;
 		message.set_who_code_whom_command_message("ircserv", "442", nickname,
@@ -500,7 +500,7 @@ int Connection::oper_func_kick()
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
-	else*/ if (channels.find(commands[1]) != channels.end()){
+	if (channels.find(commands[1]) != channels.end()){
 		{
 			Message message;
 
@@ -533,7 +533,7 @@ int Connection::func_mode()
 		return COM_NORMAL;
 
 	Channel	*channel = database->get_channel(commands[1]);
-	/*if (!channel->oper_check(nickname))
+	if (!channel->is_operator(nickname))
 	{
 		Message	message;
 		message.set_who_code_whom_command_message("ircserv", "482", nickname,
@@ -541,7 +541,7 @@ int Connection::func_mode()
 												  "You're not channel operator");
 		server->send_message(socket, message);
 		return COM_NORMAL;
-	}*/
+	}
 
 	if (commands.size() != 4){
         Message message;
@@ -579,8 +579,9 @@ int Connection::oper_func_invite()
 {
 	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
-
-	/*if (!user_ref->oper_check())
+	
+	Channel *channel = database->add_channel(commands[2]);
+	if (!channel->is_operator(nickname))
 	{
 		Message	message;
 		message.set_who_code_whom_command_message("ircserv", "482", nickname,
@@ -588,7 +589,7 @@ int Connection::oper_func_invite()
 												  "You're not channel operator");
 		server->send_message(socket, message);
 		return COM_NORMAL;
-	}*/
+	}
 
 	if (commands.size() != 3){
         Message message;
@@ -599,7 +600,6 @@ int Connection::oper_func_invite()
         return COM_NORMAL;
     }
 
-    Channel *channel = database->add_channel(commands[2]);
     channel->add_member(commands[1]);
     channels.insert(channel->get_name());
 
