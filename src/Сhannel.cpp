@@ -54,6 +54,16 @@ void Channel::set_operator(const std::string &member, bool is_operator) {
         members.find(member)->second = is_operator;
 }
 
+bool    Channel::oper_check(std::string nick)
+{
+    return  members[nick];
+}
 
+bool Channel::member_check(std::string nick)
+{
+    std::map<std::string, bool>::iterator   it = members.find(nick);
+    if (it != members.end())
+        return true;
 
-
+    return false;
+}
