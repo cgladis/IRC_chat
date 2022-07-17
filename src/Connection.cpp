@@ -543,7 +543,43 @@ int Connection::func_mode()
 		return COM_NORMAL;
 	}
 
-	if (commands.size() != 4){
+	if (commands.size() == 4) {
+        if (channels.find(commands[1]) == channels.end()) {
+            Message message;
+            message.set_who_code_whom_command_message("ircserv", "403", nickname,
+                                                      "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
+                                                      "No such channel");
+            server->send_message(socket, message);
+            return COM_NORMAL;
+        }
+        if (commands[2] == "+o") {
+            {
+                Message message;
+
+                server->add_recipients_from_channel(commands[1], "", message);
+                message.set_who_code_whom_command_group_message(nickname, "", "", "MODE", commands[1] + " " + commands[2],
+                                                                commands[3]); //вывести сообщение
+                server->send_message(socket, message);
+            }
+            channel->set_operator(commands[3], true);
+        }
+        if (commands[2] == "-o") {
+            {
+                Message message;
+
+                server->add_recipients_from_channel(commands[1], "", message);
+                message.set_who_code_whom_command_group_message(nickname, "", "", "MODE", commands[1] + " " + commands[2],
+                                                                commands[3]); //вывести сообщение
+                server->send_message(socket, message);
+            }
+            channel->set_operator(commands[3], false);
+        }
+    }
+    else if (commands.size() == 3) {
+        return COM_NORMAL;
+    }
+    else
+    {
         Message message;
         message.set_who_code_whom_command_message("ircserv", "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
@@ -551,26 +587,6 @@ int Connection::func_mode()
         server->send_message(socket, message);
         return COM_NORMAL;
     }
-	if (channels.find(commands[1]) == channels.end()) 
-	{
-		Message message;
-		message.set_who_code_whom_command_message("ircserv", "403", nickname,
-												  "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
-												  "No such channel");
-		server->send_message(socket, message);
-		return COM_NORMAL;
-	}
-	if (commands[2] == "+o")
-	{
-		{
-			Message message;
-
-			server->add_recipients_from_channel(commands[1], "", message);
-			message.set_who_code_whom_command_group_message(nickname, "make" , commands[3], "moder", "", ""); //вывести сообщение
-			server->send_message(socket, message);
-		}
-		channel->set_operator(commands[3], true);
-	}
 
 	return COM_NORMAL;
 }
