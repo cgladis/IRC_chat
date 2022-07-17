@@ -22,8 +22,8 @@ public:
     void del_member(const std::string &member) ;
     void set_operator(const std::string &member, bool is_operator);
 
-    bool    oper_check(std::string nick);
-    bool    member_check(std::string nick);
+	bool is_member(const std::string &member);
+	bool is_operator(const std::string &member);
 
     size_t count_members();
 

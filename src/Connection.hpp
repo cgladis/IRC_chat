@@ -30,9 +30,11 @@ public:
 		comlist["PASS"] = &Connection::func_pass;
 		comlist["NICK"] = &Connection::func_nick;
 		comlist["USER"] = &Connection::func_user;
+		comlist["PING"] = &Connection::func_ping;
 		comlist["PONG"] = &Connection::func_pong;
 		comlist["QUIT"] = &Connection::func_quit;
 		comlist["PRIVMSG"] = &Connection::func_msg;
+		comlist["NOTICE"] = &Connection::func_msg;
 		comlist["JOIN"] = &Connection::func_join;
 		comlist["PART"] = &Connection::func_part;
 		comlist["MODE"] = &Connection::func_mode;
@@ -47,17 +49,20 @@ public:
 	void addLetterToBuff(char letter);
 	std::string get_command_buff() const;
 	std::string get_nickname() const;
-	bool check_authorized() const;
+	bool check_right_password() const;
 	void send_start_massage() const;
 	void parse_command_buff();
 
     std::set<std::string> get_channels();
+
+	bool check_authorized_user_and_message();
 
 	int func_exit();
     int func_quit();
 	int func_pass();
 	int func_nick();
 	int func_user();
+	int func_ping();
 	int func_pong();
 	int func_msg();
 	int func_join();

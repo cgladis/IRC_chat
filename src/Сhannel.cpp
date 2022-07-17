@@ -54,16 +54,13 @@ void Channel::set_operator(const std::string &member, bool is_operator) {
         members.find(member)->second = is_operator;
 }
 
-bool    Channel::oper_check(std::string nick)
-{
-    return  members[nick];
+bool Channel::is_member(const std::string &member) {
+	return members.find(member) != members.end();
 }
 
-bool Channel::member_check(std::string nick)
-{
-    std::map<std::string, bool>::iterator   it = members.find(nick);
-    if (it != members.end())
-        return true;
-
-    return false;
+bool Channel::is_operator(const std::string &member) {
+	if (is_member(member))
+		return members[member];
+	else
+		throw std::runtime_error("No member <" + member + "> in channel");
 }

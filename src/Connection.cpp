@@ -44,7 +44,7 @@ int Connection::runCommand() {
 		answer = CALL_MEMBER_FN(*this, comlist.find(commands[0])->second)();
 	} else{
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "421",
+		message.set_who_code_whom_command_message(server->get_name(), "421",
 												  !nickname.empty() ? nickname : "*",
 												  "ERR_UNKNOWNCOMMAND <" + command_buff + ">",
 												  "Unknown command");
@@ -86,10 +86,10 @@ std::set<std::string> Connection::get_channels() {
     return channels;
 }
 
-bool Connection::check_authorized() const {
+bool Connection::check_right_password() const {
 	if (!authorized) {
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "464", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "464", nickname,
 												  "ERR_PASSWDMISMATCH", "Password incorrect");
 		server->send_message(socket, message);
 	}
@@ -97,12 +97,36 @@ bool Connection::check_authorized() const {
 }
 
 void Connection::send_start_massage() const {
+
 	if (user_ref && !nickname.empty()) {
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "001", nickname,
+													  "",
+													  "Welcome to IRC Network " + nickname + "!");
+			server->send_message(socket, message);
+		}
+		{
+			Message message;
+			message.set_who_code_whom_command_group_message("today_bot", "", "",
+															"NOTICE", nickname,
+															server->get_data_from_api());
+			server->send_message(socket, message);
+		}
+	}
+}
+
+bool Connection::check_authorized_user_and_message() {
+	if (authorized and user_ref and !nickname.empty())
+		return true;
+	{
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "001", nickname,
-												  "", "Welcome to IRC Network " + nickname + "!");
+		message.set_who_code_whom_command_message(server->get_name(), "451",
+												  nickname.empty() ? "*": nickname,
+												  "", "You have not registered.");
 		server->send_message(socket, message);
 	}
+	return false;
 }
 
 int Connection::func_exit() {
@@ -125,7 +149,7 @@ int Connection::func_quit() {
 int Connection::func_pass() {
     if (authorized){
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "462", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "462", nickname,
                                                   "ERR_ALREADYREGISTRED",
                                                   "You may not reregister");
         server->send_message(socket, message);
@@ -133,7 +157,7 @@ int Connection::func_pass() {
     }
     if (commands.size() < 2) {
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -143,7 +167,7 @@ int Connection::func_pass() {
 		authorized = true;
 	} else{
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "464", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "464", nickname,
 												  "ERR_PASSWDMISMATCH", "Password incorrect");
 		server->send_message(socket, message);
 	}
@@ -152,19 +176,19 @@ int Connection::func_pass() {
 
 int Connection::func_nick() {
 
-	if (!check_authorized())
+	if (!check_right_password())
 		return COM_NORMAL;
 
-	Message message;
-
 	if (commands.size() == 1) {
-		message.set_who_code_whom_command_message("ircserv", "431", nickname,
+		Message message;
+		message.set_who_code_whom_command_message(server->get_name(), "431", nickname,
 												  "ERR_NONICKNAMEGIVEN", "No nickname given");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
 	if (commands[1] == nickname) {
-		message.set_who_code_whom_command_message("ircserv", "436", nickname,
+		Message message;
+		message.set_who_code_whom_command_message(server->get_name(), "436", nickname,
 												  "ERR_NICKCOLLISION <" + nickname +">",
 												  "Nickname collision KILL");
 		server->send_message(socket, message);
@@ -172,7 +196,18 @@ int Connection::func_nick() {
 	}
 	if (database->add_nickname(commands[1])) {
 		if (!nickname.empty()) {
-			database->delete_nickname(nickname);
+			{
+				Message message;
+
+				for (std::set<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it){
+					server->add_recipients_from_channel(*it, "", message);
+				}
+				message.set_who_code_whom_command_message(nickname, "", "",
+																commands[0],
+																commands[1]);
+				server->send_message(socket, message);
+			}
+			database->change_nickname(nickname, commands[1]);
 			nickname = commands[1];
 		}
 		else {
@@ -180,7 +215,8 @@ int Connection::func_nick() {
 			send_start_massage();
 		}
 	} else {
-		message.set_who_code_whom_command_message("ircserv", "433", nickname,
+		Message message;
+		message.set_who_code_whom_command_message(server->get_name(), "433", nickname,
 												  "ERR_NICKNAMEINUSE <" + commands[1] +">",
 												  "Nickname is already in use");
 		server->send_message(socket, message);
@@ -190,20 +226,20 @@ int Connection::func_nick() {
 
 int Connection::func_user() {
 
-	if (!check_authorized())
+	if (!check_right_password())
 		return COM_NORMAL;
 
 	Message message;
 
 	if (user_ref) {
-		message.set_who_code_whom_command_message("ircserv", "462", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "462", nickname,
 												  "ERR_ALREADYREGISTRED", "You may not reregister");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
 
     if (commands.size() != 5){
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -213,7 +249,7 @@ int Connection::func_user() {
 	user_ref = database->add_user(commands[1], commands[2], commands[3], commands[4]);
 
 	if (!user_ref) {
-		message.set_who_code_whom_command_message("ircserv", "462", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "462", nickname,
 												  "ERR_ALREADYREGISTRED", "You may not reregister");
 		server->send_message(socket, message);
 		return COM_NORMAL;
@@ -223,55 +259,115 @@ int Connection::func_user() {
 	return COM_NORMAL;
 }
 
+int Connection::func_ping() {
+	if (!check_authorized_user_and_message())
+		return COM_NORMAL;
+
+	if (commands.size() < 2){
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
+													  commands[0],
+													  "Not enough parameters.");
+			server->send_message(socket, message);
+		}
+	}
+	else{
+		{
+			Message message;
+			message.set_who_code_whom_command_group_message(server->get_name(), "", "",
+													  "PONG",
+													  commands.size() > 2 ? commands[2] : server->get_name(),
+													  commands[1]);
+			server->send_message(socket, message);
+		}
+	}
+
+	return 0;
+}
+
+
 int Connection::func_pong() {
 
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
+
+	if (commands.size() < 2){
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
+													  commands[0],
+													  "Not enough parameters.");
+			server->send_message(socket, message);
+		}
+	}
 
 	return COM_NORMAL;
 }
 
 int Connection::func_msg() {
 
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
 	if (commands.size() != 3) {
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "461", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
 												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
 												  "Not enough parameters");
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
 	if (commands[1][0] == '#'){
-		Message message;
-		server->add_recipients_from_channel(commands[1], nickname, message);
-		message.set_who_code_whom_command_group_message(nickname, "", "",
-												  commands[0], commands[1],
-												  commands[2]);
-		if (!message.is_self_only())
+		if (database->is_channel_exist(commands[1])){
+			Message message;
+			server->add_recipients_from_channel(commands[1], nickname, message);
+			message.set_who_code_whom_command_group_message(nickname, "", "",
+															commands[0], commands[1],
+															commands[2]);
+			if (!message.is_self_only())
+				server->send_message(socket, message);
+		}
+		else
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "403", nickname,
+													  commands[1],
+													  "No such channel");
 			server->send_message(socket, message);
+		}
 	}
-	else{
-		Message message;
-		message.add_recipient(commands[1]);
-		message.set_who_code_whom_command_group_message(nickname, "", "",
-														commands[0], commands[1],
-														commands[2]);
-		server->send_message(socket, message);
+	else
+	{
+		if (database->is_nickname_exist(commands[1]))
+		{
+			Message message;
+			message.add_recipient(commands[1]);
+			message.set_who_code_whom_command_group_message(nickname, "", "",
+															commands[0], commands[1],
+															commands[2]);
+			server->send_message(socket, message);
+		}
+		else
+		{
+			Message message;
+			message.set_who_code_whom_command_message(server->get_name(), "401", nickname,
+													  commands[1],
+													  "No such nick");
+			server->send_message(socket, message);
+		}
 	}
 	return COM_NORMAL;
 }
 
 int Connection::func_join() {
 
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
     if (commands.size() != 2){
         Message message;
-        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+        message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
                                                   "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
                                                   "Not enough parameters");
         server->send_message(socket, message);
@@ -292,13 +388,13 @@ int Connection::func_join() {
     }
     {
         Message message;
-        message.set_who_code_whom_command_group_message("ircserv", "353" , nickname, "=",
+        message.set_who_code_whom_command_group_message(server->get_name(), "353" , nickname, "=",
                                                         commands[1], channel->type_members());
         server->send_message(socket, message);
     }
     {
         Message message;
-        message.set_who_code_whom_command_group_message("ircserv", "366" , nickname, "",
+        message.set_who_code_whom_command_group_message(server->get_name(), "366" , nickname, "",
                                                         commands[1], "End of /NAMES list.");
         server->send_message(socket, message);
     }
@@ -308,12 +404,12 @@ int Connection::func_join() {
 
 int Connection::func_part() {
 
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
 	if (commands.size() < 2 || commands.size() > 3){
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "461", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
 												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
 												  "Not enough parameters");
 		server->send_message(socket, message);
@@ -337,7 +433,7 @@ int Connection::func_part() {
 
 	} else {
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "403", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "403", nickname,
 												  "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
 												  "No such channel");
 		server->send_message(socket, message);
@@ -349,18 +445,21 @@ int Connection::func_part() {
 }
 
 int Connection::func_list() {
+	if (!check_authorized_user_and_message())
+		return COM_NORMAL;
+
 	std::map<std::string, Channel*> channels_list = database->get_channels();
 	for (std::map<std::string, Channel*>::const_iterator it = channels_list.begin(); it != channels_list.end(); ++it){
 		Message message;
-		/*message.set_who_code_whom_command_group_message("ircserv", "322", nickname,
+		message.set_who_code_whom_command_group_message(server->get_name(), "322", nickname,
 												  it->first,
 												  std::to_string(it->second->count_members()),
-												  "");*/
+												  "");
 		server->send_message(socket, message);
 	}
 	{
 		Message message;
-		message.set_who_code_whom_command_message("ircserv", "323", nickname,
+		message.set_who_code_whom_command_message(server->get_name(), "323", nickname,
 														"","End of channel list.");
 		server->send_message(socket, message);
 	}
@@ -369,7 +468,7 @@ int Connection::func_list() {
 
 int Connection::oper_func_kick()
 {
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
 	// не могу придумать, как проверить на оператора((((
@@ -390,7 +489,6 @@ int Connection::oper_func_kick()
 												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
 												  "Not enough parameters");
 		server->send_message(socket, message);
-		return COM_NORMAL;
 	}
 
 	/*if (!channel->member_check(nickname))
@@ -431,7 +529,7 @@ int Connection::oper_func_kick()
 
 int Connection::func_mode()
 {
-	if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
 	Channel	*channel = database->get_channel(commands[1]);
@@ -479,7 +577,7 @@ int Connection::func_mode()
 
 int Connection::oper_func_invite()
 {
-    if (!check_authorized())
+	if (!check_authorized_user_and_message())
 		return COM_NORMAL;
 
 	/*if (!user_ref->oper_check())
