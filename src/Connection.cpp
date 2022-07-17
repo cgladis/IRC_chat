@@ -121,7 +121,7 @@ void Connection::send_start_massage() const {
             Message message;
             message.set_who_code_whom_command_group_message("numbers_bot", "", "",
                                                             "NOTICE", nickname,
-                                                            "I know about numbers. You cat text me PRIVMSG or ask me about numbers in #numbers. See you!");
+                                                            "I know about numbers. You cat text me PRIVMSG or ask me about numbers in #numbers See you!");
             server->send_message(socket, message);
         }
     }
@@ -442,7 +442,7 @@ int Connection::func_part() {
             server->send_message(socket, message);
         }
         Channel *channel = database->get_channel(commands[1]);
-        channel->del_member(commands[1]);
+        channel->del_member(nickname);
         if (channel->count_members() == 0)
             database->del_channel(commands[1]);
 
@@ -636,29 +636,39 @@ int Connection::oper_func_invite() {
         return COM_NORMAL;
     }
 
+    //Channel *channel = database->add_channel(commands[2]);
     channel->add_member(commands[1]);
-    channels.insert(channel->get_name());
+    Connection *con = server->get_connection(commands[1]);
+    con->add_channel(channel->get_name());
 
     {
         Message message;
-
-        server->add_recipients_from_channel(commands[2], "", message);
+        message.add_recipient(commands[1]);
         message.set_who_code_whom_command_group_message(nickname, "", "", commands[0],
                                                         commands[1], commands[2]);
         server->send_message(socket, message);
     }
     {
         Message message;
-        message.set_who_code_whom_command_group_message(server->get_name(), "353", nickname, "=",
-                                                        commands[2], channel->type_members());
+        message.set_who_code_whom_command_message(server->get_name(), "341", nickname,
+                                                  commands[1],
+                                                  commands[2]);
         server->send_message(socket, message);
     }
-    {
-        Message message;
-        message.set_who_code_whom_command_group_message(server->get_name(), "366", nickname, "",
-                                                        commands[2], "End of /NAMES list.");
-        server->send_message(socket, message);
-    }
+//    {
+//        Message message;
+//        message.add_recipient(commands[1]);
+//        message.set_who_code_whom_command_group_message(server->get_name(), "353", commands[1], "=",
+//                                                        commands[2], channel->type_members());
+//        server->send_message(socket, message);
+//    }
+//    {
+//        Message message;
+//        message.add_recipient(commands[1]);
+//        message.set_who_code_whom_command_group_message(server->get_name(), "366", commands[1], "",
+//                                                        commands[2], "End of /NAMES list.");
+//        server->send_message(socket, message);
+//    }
 
     return COM_NORMAL;
 }
@@ -779,4 +789,10 @@ int Connection::func_restart() {
         return COM_NORMAL;
     }
     return COM_RESTART;
+}
+
+void Connection::add_channel(const std::string &channel) {
+
+    channels.insert(channel);
+
 }

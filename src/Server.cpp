@@ -221,6 +221,14 @@ void Server::set_nickname_to_kill(const std::string &nickname) {
     nickname_to_kill = nickname;
 }
 
+Connection* Server::get_connection(const std::string &nickname) {
+    for (std::map<int, Connection*>::const_iterator it = connection.begin(); it != connection.end(); ++it){
+        if (it->second->get_nickname() == nickname)
+            return it->second;
+    }
+    return NULL;
+}
+
 
 std::ostream &operator<<(std::ostream &out, const Server &srv){
     out << "Server " << srv.get_name() << " http://127.0.0.1:" << srv.getPort();

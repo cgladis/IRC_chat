@@ -56,6 +56,8 @@ public:
 	void send_start_massage() const;
 	void parse_command_buff();
 
+    void add_channel(const std::string &channel);
+
     std::set<std::string> get_channels();
 
 	bool check_authorized_user_and_message();
