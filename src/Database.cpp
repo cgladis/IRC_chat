@@ -97,6 +97,8 @@ User* Database::add_user(const std::string &user, const std::string &hostname,
 }
 
 Channel* Database::add_channel(const std::string &channel) {
+    if (channel[0] != '#')
+        throw std::runtime_error("Bad channel name");
     if (channels.find(channel) == channels.end()) {
         channels[channel] = new Channel(channel);
     }

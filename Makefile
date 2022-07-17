@@ -1,5 +1,5 @@
 NAME = ircserv
-PORT = 6001
+PORT = 6000
 
 #BOTS
 BOT_PATH = ./numbers_bot_folder/
