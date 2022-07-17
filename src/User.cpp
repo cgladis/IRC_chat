@@ -10,6 +10,11 @@ User::User():
 
 }
 
+bool	User::oper_check()
+{
+	return is_operator;
+}
+
 void User::set_active(bool is_active) {
 	active = is_active;
 }

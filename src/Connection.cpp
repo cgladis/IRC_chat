@@ -348,18 +348,14 @@ int Connection::func_part() {
 	return COM_NORMAL;
 }
 
-int Connection::func_mode() {
-	return COM_NORMAL;
-}
-
 int Connection::func_list() {
 	std::map<std::string, Channel*> channels_list = database->get_channels();
 	for (std::map<std::string, Channel*>::const_iterator it = channels_list.begin(); it != channels_list.end(); ++it){
 		Message message;
-		message.set_who_code_whom_command_group_message("ircserv", "322", nickname,
+		/*message.set_who_code_whom_command_group_message("ircserv", "322", nickname,
 												  it->first,
 												  std::to_string(it->second->count_members()),
-												  "");
+												  "");*/
 		server->send_message(socket, message);
 	}
 	{
@@ -376,7 +372,19 @@ int Connection::oper_func_kick()
 	if (!check_authorized())
 		return COM_NORMAL;
 
-	if (commands.size() < 2 || commands.size() > 3){
+	// не могу придумать, как проверить на оператора((((
+	//Channel	*channel = database->get_channel(commands[1]);
+	/*if (!channel->oper_check(nickname))
+	{
+		Message	message;
+		message.set_who_code_whom_command_message("ircserv", "482", nickname,
+												  "ERR_CHANOPRIVSNEEDED <" + commands[0] + ">",
+												  "You're not channel operator");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}*/
+
+	if (commands.size() < 3 || commands.size() > 4){
 		Message message;
 		message.set_who_code_whom_command_message("ircserv", "461", nickname,
 												  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
@@ -384,16 +392,139 @@ int Connection::oper_func_kick()
 		server->send_message(socket, message);
 		return COM_NORMAL;
 	}
+
+	/*if (!channel->member_check(nickname))
+	{
+		Message message;
+		message.set_who_code_whom_command_message("ircserv", "442", nickname,
+												  "ERR_NOTONCHANNEL <" + commands[1] + ">",
+												  "You're not on that channel");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}
+	else*/ if (channels.find(commands[1]) != channels.end()){
+		{
+			Message message;
+
+			server->add_recipients_from_channel(commands[1], "", message);
+			message.set_who_code_whom_command_group_message(nickname, "" , commands[0],
+															commands[1],commands[2],
+															commands.size() == 4 ? commands[3] : "");
+			server->send_message(socket, message);
+		}
+        Channel *channel = database->get_channel(commands[1]);
+        channel->del_member(commands[1]);
+        if (channel->count_members() == 0)
+            database->del_channel(commands[1]);
+
+	} else {
+		Message message;
+		message.set_who_code_whom_command_message("ircserv", "403", nickname,
+												  "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
+												  "No such channel");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}
+
+	return COM_NORMAL;
 }
 
-int Connection::oper_func_mode()
+int Connection::func_mode()
 {
 	if (!check_authorized())
 		return COM_NORMAL;
+
+	Channel	*channel = database->get_channel(commands[1]);
+	/*if (!channel->oper_check(nickname))
+	{
+		Message	message;
+		message.set_who_code_whom_command_message("ircserv", "482", nickname,
+												  "ERR_CHANOPRIVSNEEDED <" + commands[0] + ">",
+												  "You're not channel operator");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}*/
+
+	if (commands.size() != 4){
+        Message message;
+        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+                                                  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
+                                                  "Not enough parameters");
+        server->send_message(socket, message);
+        return COM_NORMAL;
+    }
+	if (channels.find(commands[1]) == channels.end()) 
+	{
+		Message message;
+		message.set_who_code_whom_command_message("ircserv", "403", nickname,
+												  "ERR_NOSUCHCHANNEL <" + commands[1] + ">",
+												  "No such channel");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}
+	if (commands[2] == "+o")
+	{
+		{
+			Message message;
+
+			server->add_recipients_from_channel(commands[1], "", message);
+			message.set_who_code_whom_command_group_message(nickname, "make" , commands[3], "moder", "", ""); //вывести сообщение
+			server->send_message(socket, message);
+		}
+		channel->set_operator(commands[3], true);
+	}
+
+	return COM_NORMAL;
 }
 
 int Connection::oper_func_invite()
 {
     if (!check_authorized())
 		return COM_NORMAL;
+
+	/*if (!user_ref->oper_check())
+	{
+		Message	message;
+		message.set_who_code_whom_command_message("ircserv", "482", nickname,
+												  "ERR_CHANOPRIVSNEEDED <" + commands[0] + ">",
+												  "You're not channel operator");
+		server->send_message(socket, message);
+		return COM_NORMAL;
+	}*/
+
+	if (commands.size() != 3){
+        Message message;
+        message.set_who_code_whom_command_message("ircserv", "461", nickname,
+                                                  "ERR_NEEDMOREPARAMS <" + commands[0] + ">",
+                                                  "Not enough parameters");
+        server->send_message(socket, message);
+        return COM_NORMAL;
+    }
+
+    Channel *channel = database->add_channel(commands[2]);
+    channel->add_member(commands[1]);
+    channels.insert(channel->get_name());
+
+    {
+        Message message;
+
+        server->add_recipients_from_channel(commands[2], "", message);
+        message.set_who_code_whom_command_group_message(nickname, "" , "", commands[0],
+                                                  commands[1], commands[2]);
+        server->send_message(socket, message);
+    }
+    {
+        Message message;
+        message.set_who_code_whom_command_group_message("ircserv", "353" , nickname, "=",
+                                                        commands[2], channel->type_members());
+        server->send_message(socket, message);
+    }
+    {
+        Message message;
+        message.set_who_code_whom_command_group_message("ircserv", "366" , nickname, "",
+                                                        commands[2], "End of /NAMES list.");
+        server->send_message(socket, message);
+    }
+
+	return COM_NORMAL;
 }

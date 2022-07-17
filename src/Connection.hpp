@@ -38,7 +38,6 @@ public:
 		comlist["MODE"] = &Connection::func_mode;
 		comlist["LIST"] = &Connection::func_list;
 		comlist["KICK"] = &Connection::oper_func_kick;
-		comlist["MODE"] = &Connection::oper_func_mode;
 		comlist["INVITE"] = &Connection::oper_func_invite;
 	}
 

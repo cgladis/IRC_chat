@@ -17,6 +17,7 @@ public:
 	void set_realname(const std::string &realname);
 	void set_operator(bool is_operator);
 	void set_password(const std::string &password);
+	bool oper_check();
 
 
 private:
