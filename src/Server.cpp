@@ -217,6 +217,10 @@ std::string Server::get_data_from_api() {
 	return str.substr(str.find("\r\n\r\n") + 4);
 }
 
+void Server::set_nickname_to_kill(const std::string &nickname) {
+    nickname_to_kill = nickname;
+}
+
 
 std::ostream &operator<<(std::ostream &out, const Server &srv){
     out << "Server " << srv.get_name() << " http://127.0.0.1:" << srv.getPort();

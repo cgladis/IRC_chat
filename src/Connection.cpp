@@ -140,6 +140,7 @@ int Connection::func_quit() {
     }
     if (!message.is_self_only())
         server->send_message(socket, message);
+    server->set_nickname_to_kill(nickname);
     return COM_QUIT;
 }
 
@@ -573,6 +574,8 @@ int Connection::func_mode() {
         }
     } else if (commands.size() == 3) {
         return COM_NORMAL;
+    } else if (commands.size() == 2) {
+        return COM_NORMAL;
     } else {
         Message message;
         message.set_who_code_whom_command_message(server->get_name(), "461", nickname,
@@ -681,7 +684,7 @@ int	Connection::func_kill()
 	}
 	else
 	{
-		server->nickname_to_kill(commands[1]);
+		server->set_nickname_to_kill(commands[1]);
 		Message message;
    		message.set_who_code_whom_command_message(nickname, "", "",
                                               commands[0], commands[1]);
@@ -689,7 +692,6 @@ int	Connection::func_kill()
 		server->send_message(socket, message);
     	return COM_QUIT;
 	}
-	
 }
 
 int	Connection::func_oper()
@@ -747,7 +749,11 @@ int	Connection::func_oper()
 }
 
 int Connection::func_restart() {
-    if (!user_ref->oper_check())
+
+    if (!check_authorized_user_and_message())
+        return COM_NORMAL;
+
+    if (!is_operator)
     {
         {
             Message message;
