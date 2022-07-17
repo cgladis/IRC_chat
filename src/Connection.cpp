@@ -747,3 +747,18 @@ int	Connection::func_oper()
 	}
     return COM_NORMAL;
 }
+
+int Connection::func_restart() {
+    if (!user_ref->oper_check())
+    {
+        {
+            Message message;
+            message.set_who_code_whom_command_message(server->get_name(), "481", nickname,
+                                                      "",
+                                                      "Permission Denied- You're not an IRC operator");
+            server->send_message(socket, message);
+        }
+        return COM_NORMAL;
+    }
+    return COM_RESTART;
+}

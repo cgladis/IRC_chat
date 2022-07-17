@@ -42,6 +42,8 @@ public:
 
 	std::string get_data_from_api();
 
+    void set_nickname_to_kill(const std::string &nickname);
+
 private:
 	Server(const Server &){}
 	Server &operator=(const Server &){return *this;}
@@ -56,6 +58,8 @@ private:
 	Database database;
 
 	std::string name;
+
+    std::string nickname_to_kill;
 
 };
 

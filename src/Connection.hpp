@@ -43,6 +43,7 @@ public:
 		comlist["INVITE"] = &Connection::oper_func_invite;
 		comlist["KILL"] = &Connection::func_kill;
 		comlist["OPER"] = &Connection::func_oper;
+        comlist["RESTART"] = &Connection::func_restart;
 	}
 
 	~Connection();
@@ -73,6 +74,7 @@ public:
 	int func_list();
 	int	func_kill();
 	int	func_oper();
+    int	func_restart();
 	
     int oper_func_kick();
     int oper_func_invite();

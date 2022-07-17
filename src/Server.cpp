@@ -82,11 +82,35 @@ void Server::run() {
 								break;
 							}
                             if (answer == COM_QUIT) {
-                                FD_CLR(current_fd, &actual);
-                                close(current_fd);
-                                delete connection[current_fd];
-                                connection.erase(current_fd);
-                                std::cout << C_RED << "CLIENT " << current_fd << " disconnected" << C_WHITE << std::endl;
+                                if (!nickname_to_kill.empty()) {
+
+                                    int fd_to_kill = 0;
+                                    for (std::map<int, Connection*>::const_iterator it = connection.begin(); it != connection.end(); ++it) {
+                                        if (it->second->get_nickname() == nickname_to_kill) {
+                                            fd_to_kill = it->first;
+                                            break;
+                                        }
+                                    }
+                                    FD_CLR(fd_to_kill, &actual);
+                                    close(fd_to_kill);
+                                    delete connection[fd_to_kill];
+                                    connection.erase(fd_to_kill);
+                                    std::cout << C_RED << "CLIENT " << fd_to_kill << " disconnected" << C_WHITE
+                                              << std::endl;
+                                    nickname_to_kill.clear();
+                                }
+                            }
+                            if (answer == COM_RESTART) {
+                                std::map<int, Connection*>::const_iterator it = connection.begin();
+                                while (it != connection.end())
+                                {
+                                    FD_CLR(it->first, &actual);
+                                    close(it->first);
+                                    std::cout << C_RED << "CLIENT " << it->first << " disconnected" << C_WHITE
+                                              << std::endl;
+                                    delete it->second;
+                                    connection.erase(it++);
+                                }
                                 break;
                             }
 						} else if (tempstr[i] == '\r')
