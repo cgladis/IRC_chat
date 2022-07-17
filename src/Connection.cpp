@@ -110,6 +110,16 @@ void Connection::send_start_massage() const {
                                                             server->get_data_from_api());
             server->send_message(socket, message);
         }
+        {
+            Message message;
+            message.set_who_code_whom_command_group_message("numbers_bot", "", "",
+                                                            "NOTICE", nickname,
+                                                            "Hi, " + nickname + "!");
+            message.set_who_code_whom_command_group_message("numbers_bot", "", "",
+                                                            "NOTICE", nickname,
+                                                            "I know about numbers. You cat text me in PRIVMSG or  ask me about numbers in #numbers. See you!");
+            server->send_message(socket, message);
+        }
     }
 }
 
